@@ -1,6 +1,6 @@
 {
   "name": "vsnetrw",
-  "version": "0.0.0",
+  "version": "0.0.0-alpha",
   "main": "extension.js",
   "license": "Unlicense",
   "repository": "danprince/vsnetrw",
