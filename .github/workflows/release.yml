@@ -1,0 +1,21 @@
+name: Create Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    name: Create Release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v3
+      - run: yarn install --frozen-lockfile
+      - run: yarn build
+      - uses: ncipollo/release-action@v1
+        with:
+          artifacts: "*.vsix"
+          body: ${{ github.event.head_commit.message }}
+          token: ${{ secrets.GITHUB_TOKEN }}
