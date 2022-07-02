@@ -1,6 +1,6 @@
 let assert = require("assert");
 let path = require("node:path");
-let { window, workspace, commands, Uri, EventEmitter, FileType } = require("vscode");
+let { window, workspace, commands, Uri, EventEmitter, FileType, Selection } = require("vscode");
 
 /**
  * The scheme is used to associate vsnetrw documents with the text content provider
@@ -48,15 +48,58 @@ function refresh() {
   uriChangeEmitter.fire(uri);
 }
 
+/**
+ * Check whether the active editor is an explorer.
+ */
+function isExplorer() {
+  return window.activeTextEditor?.document.uri.scheme === scheme;
+}
+
+/**
+ * A map from directory paths to selections, so that cursor positions can be
+ * preserved when jumping between directories.
+ *
+ * @type {Map<string, readonly Selection[]>}
+ */
+let selectionsMemoryMap = new Map();
+
+/**
+ * Attempt to save the cursor position in the active explorer.
+ */
+function saveSelections() {
+  let editor = window.activeTextEditor;
+  assert(editor, "No active editor");
+
+  if (isExplorer()) {
+    let key = getCurrentDir();
+    selectionsMemoryMap.set(key, editor.selections);
+  }
+}
+
+/**
+ * Attempt to restore the cursor position in the active explorer.
+ */
+function restoreSelections() {
+  let editor = window.activeTextEditor;
+  assert(editor, "No active editor");
+
+  if (isExplorer()) {
+    let key = getCurrentDir();
+    let selections = selectionsMemoryMap.get(key);
+    if (selections) editor.selections = selections;
+  }
+}
 
 /**
  * Open a new vsnetrw document for a given directory.
  * @param {string} dirName
  */
-async function openVsnetrw(dirName = ".") {
+async function openExplorer(dirName = ".") {
+  saveSelections();
   let uri = createUri(dirName);
   let doc = await workspace.openTextDocument(uri);
   await window.showTextDocument(doc, { preview: true });
+  restoreSelections();
 }
 
 /**
@@ -77,7 +120,7 @@ async function isNonEmptyDir(file) {
  * document.
  * @returns {string}
  */
-function getFileUnderCursor() {
+function getLineUnderCursor() {
   let editor = window.activeTextEditor;
   assert(editor, "No active editor");
   let line = editor.document.lineAt(editor.selection.active);
@@ -100,7 +143,7 @@ async function openFileInVscodeEditor(fileName) {
  * If the name includes a path that does not exist, then it will be created.
  */
 async function renameFileUnderCursor() {
-  let file = getFileUnderCursor();
+  let file = getLineUnderCursor();
   let base = getCurrentDir();
 
   let newName = await window.showInputBox({
@@ -132,7 +175,7 @@ async function renameFileUnderCursor() {
  * deletion.
  */
 async function deleteFileUnderCursor() {
-  let file = getFileUnderCursor();
+  let file = getLineUnderCursor();
   let base = getCurrentDir();
   let pathToFile = path.join(base, file);
 
@@ -195,12 +238,12 @@ async function createDir() {
   refresh();
 }
 
-async function openExplorer() {
+async function openNewExplorer() {
   let editor = window.activeTextEditor;
   let doc = editor?.document;
   let fileUri = doc ? doc.uri.fsPath : ".";
   let pathName = path.dirname(fileUri);
-  await openVsnetrw(pathName);
+  await openExplorer(pathName);
 }
 
 /**
@@ -211,14 +254,14 @@ async function openExplorer() {
  * new vsnetrw document.
  */
 async function openFileUnderCursor() {
-  let relativePath = getFileUnderCursor();
+  let relativePath = getLineUnderCursor();
   let basePath = getCurrentDir();
-  let newPath = path.join(basePath, relativePath);
+  let newPath = path.resolve(basePath, relativePath);
   let uri = Uri.file(newPath);
   let stat = await workspace.fs.stat(uri);
 
   if (stat.type & FileType.Directory) {
-    await openVsnetrw(newPath);
+    await openExplorer(newPath);
   } else {
     await openFileInVscodeEditor(newPath);
   }
@@ -232,7 +275,7 @@ async function openParentDirectory() {
   assert(editor);
   let pathName = editor.document.uri.query;
   let parentPath = path.dirname(pathName);
-  openVsnetrw(parentPath);
+  openExplorer(parentPath);
 }
 
 /**
@@ -278,7 +321,7 @@ function activate(context) {
   );
 
   context.subscriptions.push(
-    commands.registerCommand("vsnetrw.open", openExplorer),
+    commands.registerCommand("vsnetrw.open", openNewExplorer),
     commands.registerCommand("vsnetrw.openAtCursor", openFileUnderCursor),
     commands.registerCommand("vsnetrw.openParent", openParentDirectory),
     commands.registerCommand("vsnetrw.rename", renameFileUnderCursor),
