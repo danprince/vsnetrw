@@ -1,0 +1,87 @@
+{
+  "name": "vsnetrw",
+  "version": "0.0.0",
+  "main": "extension.js",
+  "engines": {
+    "vscode": "^1.22.0"
+  },
+  "activationEvents": [
+    "onCommand:vsnetrw.open"
+  ],
+  "contributes": {
+    "languages": [
+      {
+        "id": "vsnetrw",
+        "filenames": ["vsnetrw"],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "commands": [
+      {
+        "command": "vsnetrw.open",
+        "title": "Open Vsnetrw"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "vsnetrw.open",
+        "key": "-",
+        "when": "editorLangId != vsnetrw && vim.mode == 'Normal'"
+      },
+      {
+        "command": "vsnetrw.open",
+        "key": "enter",
+        "when": "editorLangId == vsnetrw && vim.mode =~ /^(?!SearchInProgressMode|CommandlineInProgress).*$/"
+      },
+      {
+        "command": "vsnetrw.openParent",
+        "key": "-",
+        "when": "editorLangId == vsnetrw && vim.mode =~ /^(?!SearchInProgressMode|CommandlineInProgress).*$/"
+      },
+      {
+        "command": "vsnetrw.rename",
+        "key": "shift+r",
+        "when": "editorLangId == vsnetrw && vim.mode =~ /^(?!SearchInProgressMode|CommandlineInProgress).*$/"
+      },
+      {
+        "command": "vsnetrw.delete",
+        "key": "shift+d",
+        "when": "editorLangId == vsnetrw && vim.mode =~ /^(?!SearchInProgressMode|CommandlineInProgress).*$/"
+      },
+      {
+        "command": "vsnetrw.create",
+        "key": "shift+5",
+        "when": "editorLangId == vsnetrw && vim.mode =~ /^(?!SearchInProgressMode|CommandlineInProgress).*$/"
+      },
+      {
+        "command": "vsnetrw.createDir",
+        "key": "d",
+        "when": "editorLangId == vsnetrw && vim.mode =~ /^(?!SearchInProgressMode|CommandlineInProgress).*$/"
+      },
+      {
+        "command": "vsnetrw.refresh",
+        "key": "ctrl+l",
+        "when": "editorLangId == vsnetrw && vim.mode =~ /^(?!SearchInProgressMode|CommandlineInProgress).*$/"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "vsnetrw",
+        "scopeName": "source.vsnetrw",
+        "path": "./vsnetrw.tmLanguage.json"
+      }
+    ],
+    "configurationDefaults": {
+      "[vsnetrw]": {
+        "editor.lineNumbers": "off",
+        "editor.minimap.enabled": false,
+        "editor.renderWhitespace": "none"
+      }
+    }
+  },
+  "devDependencies": {
+    "@types/node": "^18.0.0",
+    "@types/vscode": "^1.68.1",
+    "typescript": "^4.7.4"
+  }
+}

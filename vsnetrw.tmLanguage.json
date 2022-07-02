@@ -1,0 +1,21 @@
+{
+  "scopeName": "source.vsnetrw",
+  "patterns": [
+    {
+      "include": "#hidden"
+    },
+    {
+      "include": "#directory"
+    }
+  ],
+  "repository": {
+    "directory": {
+      "match": "^.*/$",
+      "name": "keyword"
+    },
+    "hidden": {
+      "match": "^\\.[^.].*$",
+      "name": "comment"
+    }
+  }
+}
