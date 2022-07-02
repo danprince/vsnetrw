@@ -11,4 +11,4 @@ jobs:
       - uses: actions/upload-artifact@v3
         with:
           name: vsnetrw.vsix
-          path: *.vsix
+          path: vsnetrw-*.vsix
