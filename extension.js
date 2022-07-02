@@ -86,8 +86,7 @@ function getFileUnderCursor() {
  */
 async function openFileInVscodeEditor(fileName) {
   let uri = Uri.file(fileName);
-  let doc = await workspace.openTextDocument(uri);
-  await window.showTextDocument(doc, { preview: false });
+  await commands.executeCommand("vscode.open", uri);
 }
 
 /**
