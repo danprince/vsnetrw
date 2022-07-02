@@ -2,7 +2,7 @@
   "name": "vsnetrw",
   "version": "0.0.0",
   "main": "extension.js",
-  "license": "unlicense",
+  "license": "Unlicense",
   "repository": "danprince/vsnetrw",
   "engines": {
     "vscode": "^1.68.0"
