@@ -1,6 +1,10 @@
 {
   "name": "vsnetrw",
   "version": "0.0.0-alpha",
+  "description": "A vscode split explorer for files",
+  "publisher": "Dan Prince",
+  "icon": "icon.png",
+  "keywords": ["netrw", "vim", "vim-vinegar", "dired", "explorer"],
   "main": "extension.js",
   "license": "Unlicense",
   "repository": "danprince/vsnetrw",

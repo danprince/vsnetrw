@@ -1,8 +1,8 @@
 # vsnetrw
-A vscode split explorer inspired by vim's [netrw][netrw], [vim-vinegar][vinegar], [dired][dired], and [vim-dirvish][dirvish].
+A split file explorer for vscode, inspired by [netrw][netrw], [vim-vinegar][vinegar], [dired][dired], and [vim-dirvish][dirvish].
 
 ## Shortcuts
-Press <kbd>-</kbd> to open an explorer at the parent directory of the currently active text editor. Once open the following shortcuts are available.
+Press <kbd>-</kbd> to open a file explorer at the parent directory of the currently active text editor. Once open the following shortcuts are available.
 
 | Default Shortcut | Command | Description |
 | ---------------- | ------- | ----------- |
