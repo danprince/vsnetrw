@@ -1,6 +1,7 @@
+let assert = require("assert");
 let fs = require("node:fs/promises");
 let path = require("node:path");
-let { window, workspace, commands, Uri, EventEmitter } = require("vscode");
+let { window, workspace, commands, Uri, EventEmitter, TextEdit } = require("vscode");
 
 /**
  * The scheme is used to associate vsnetrw documents with the text content provider
@@ -25,6 +26,16 @@ function createUri(dirName) {
 }
 
 /**
+ * Get the current directory from the current document's Uri.
+ * @returns The path to the directory that is open in the current vsnetrw document.
+ */
+function getCurrentDir() {
+  let editor = window.activeTextEditor;
+  assert(editor && editor.document.uri.scheme === scheme, "Not a vsnetrw editor");
+  return editor.document.uri.query;
+}
+
+/**
  * Event emitter used to trigger updates for the text document content provider.
  */
 let uriChangeEmitter = new EventEmitter();
@@ -38,19 +49,12 @@ function refresh() {
   uriChangeEmitter.fire(uri);
 }
 
-/**
- * Get the current directory from the current document's Uri.
- * @returns The path to the directory that is open in the current vsnetrw document.
- */
-function getCurrentDir() {
-  return window.activeTextEditor.document.uri.query;
-}
 
 /**
  * Open a new vsnetrw document for a given directory.
  * @param {string} dirName
  */
-async function openVsnetrw(dirName) {
+async function openVsnetrw(dirName = ".") {
   let uri = createUri(dirName);
   let doc = await workspace.openTextDocument(uri);
   await window.showTextDocument(doc, { preview: true });
@@ -74,14 +78,14 @@ async function isNonEmptyDir(file) {
  * @returns {string}
  */
 function getFileUnderCursor() {
-  let doc = window.activeTextEditor.document;
   let editor = window.activeTextEditor;
-  let line = doc.lineAt(editor.selection.active);
+  assert(editor, "no active editor");
+  let line = editor.document.lineAt(editor.selection.active);
   return line.text;
 }
 
 /**
- * Opens a file in a text editor.
+ * Opens a file in a vscode editor.
  * @param {string} fileName
  */
 async function openFileInVscodeEditor(fileName) {
@@ -186,36 +190,31 @@ async function createDir() {
   refresh();
 }
 
+async function openExplorer() {
+  let editor = window.activeTextEditor;
+  let doc = editor?.document;
+  let fileUri = doc ? doc.uri.fsPath : ".";
+  let pathName = path.dirname(fileUri);
+  await openVsnetrw(pathName);
+}
+
 /**
- * Attempt to open the file that is currently under the cursor. If
- * vsnetrw is not already open, then it will be opened at the directory
- * of the currently opened file.
+ * Attempt to open the file that is currently under the cursor.
  *
  * If there is a file under the cursor, it will open in a vscode text
  * editor. If there is a directory under the cursor, then it will open in a
  * new vsnetrw document.
  */
 async function openFileUnderCursor() {
-  let doc = window.activeTextEditor.document;
+  let relativePath = getFileUnderCursor();
+  let basePath = getCurrentDir();
+  let newPath = path.join(basePath, relativePath);
+  let stat = await fs.lstat(newPath);
 
-  // Check whether we're already in a netrw buffer
-  if (doc.uri.scheme === scheme) {
-    // Open the file/dir under the cursor
-    let relativePath = getFileUnderCursor();
-    let basePath = getCurrentDir();
-    let newPath = path.join(basePath, relativePath);
-    let stat = await fs.lstat(newPath);
-
-    if (stat.isDirectory()) {
-      await openVsnetrw(newPath);
-    } else {
-      await openFileInVscodeEditor(newPath);
-    }
+  if (stat.isDirectory()) {
+    await openVsnetrw(newPath);
   } else {
-    // Open a new netrw instance at the current file's path
-    let fileUri = doc ? doc.uri.fsPath : ".";
-    let pathName = path.dirname(fileUri);
-    await openVsnetrw(pathName);
+    await openFileInVscodeEditor(newPath);
   }
 }
 
@@ -223,8 +222,9 @@ async function openFileUnderCursor() {
  * Opens the parent directory in a vsnetrw document.
  */
 async function openParentDirectory() {
-  let doc = window.activeTextEditor.document;
-  let pathName = doc.uri.query;
+  let editor = window.activeTextEditor;
+  assert(editor);
+  let pathName = editor.document.uri.query;
   let parentPath = path.dirname(pathName);
   openVsnetrw(parentPath);
 }
@@ -232,7 +232,7 @@ async function openParentDirectory() {
 /**
  * Combines the results from readdir and stat. Files/dirs that have stat
  * errors are silently omitted from the results.
- * 
+ *
  * @param {string} dirName
  * @return {Promise<{ file: string, stat: import("fs").Stats }[]>}
  */
@@ -249,6 +249,7 @@ async function readdirAndStat(dirName) {
     return { file, stat };
   });
 
+  // @ts-ignore
   return results.filter(result => result.stat != null);
 }
 
@@ -294,7 +295,8 @@ function activate(context) {
   );
 
   context.subscriptions.push(
-    commands.registerCommand("vsnetrw.open", openFileUnderCursor),
+    commands.registerCommand("vsnetrw.open", openExplorer),
+    commands.registerCommand("vsnetrw.openAtCursor", openFileUnderCursor),
     commands.registerCommand("vsnetrw.openParent", openParentDirectory),
     commands.registerCommand("vsnetrw.rename", renameFileUnderCursor),
     commands.registerCommand("vsnetrw.delete", deleteFileUnderCursor),

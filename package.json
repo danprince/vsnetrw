@@ -40,7 +40,7 @@
         "when": "editorLangId != vsnetrw && vim.mode == 'Normal'"
       },
       {
-        "command": "vsnetrw.open",
+        "command": "vsnetrw.openAtCursor",
         "key": "enter",
         "when": "editorLangId == vsnetrw && vim.mode =~ /^(?!SearchInProgressMode|CommandlineInProgress).*$/"
       },
