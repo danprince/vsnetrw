@@ -1,7 +1,6 @@
 let assert = require("assert");
-let fs = require("node:fs/promises");
 let path = require("node:path");
-let { window, workspace, commands, Uri, EventEmitter, TextEdit } = require("vscode");
+let { window, workspace, commands, Uri, EventEmitter, FileType } = require("vscode");
 
 /**
  * The scheme is used to associate vsnetrw documents with the text content provider
@@ -66,9 +65,10 @@ async function openVsnetrw(dirName = ".") {
  * @returns {Promise<boolean>}
  */
 async function isNonEmptyDir(file) {
-  let stat = await fs.stat(file);
-  if (!stat.isDirectory()) return false;
-  let files = await fs.readdir(file);
+  let uri = Uri.file(file);
+  let stat = await workspace.fs.stat(uri);
+  if ((stat.type & FileType.Directory) === 0) return false;
+  let files = await workspace.fs.readDirectory(uri);
   return files.length > 0;
 }
 
@@ -79,7 +79,7 @@ async function isNonEmptyDir(file) {
  */
 function getFileUnderCursor() {
   let editor = window.activeTextEditor;
-  assert(editor, "no active editor");
+  assert(editor, "No active editor");
   let line = editor.document.lineAt(editor.selection.active);
   return line.text;
 }
@@ -111,12 +111,16 @@ async function renameFileUnderCursor() {
 
   if (!newName) return;
 
-  let pathToCurrent = path.join(base, file);
-  let pathToNew = path.join(base, newName);
-  let newPathDir = path.dirname(pathToNew);
+  let currentPath = path.join(base, file);
+  let newPath = path.join(base, newName);
+  let newPathDir = path.dirname(newPath);
 
-  await fs.mkdir(newPathDir, { recursive: true });
-  await fs.rename(pathToCurrent, pathToNew);
+  let currentUri = Uri.file(currentPath);
+  let newUri = Uri.file(newPath);
+  let newDirUri = Uri.file(newPathDir);
+
+  await workspace.fs.createDirectory(newDirUri);
+  await workspace.fs.rename(currentUri, newUri)
 
   refresh();
 }
@@ -140,7 +144,8 @@ async function deleteFileUnderCursor() {
     if (selection !== "Delete") return;
   }
 
-  await fs.rm(pathToFile, { recursive: true });
+  let uri = Uri.file(pathToFile);
+  await workspace.fs.delete(uri, { recursive: true, useTrash: true });
   refresh();
 }
 
@@ -160,13 +165,12 @@ async function createFile() {
 
   if (newFileName == null) return;
   let pathToFile = path.join(base, newFileName);
+  let uri = Uri.file(pathToFile);
 
   if (newFileName.endsWith("/")) {
-    await fs.mkdir(pathToFile, { recursive: true });
+    await workspace.fs.createDirectory(uri)
   } else {
-    let dirName = path.dirname(pathToFile);
-    await fs.mkdir(dirName, { recursive: true });
-    await fs.appendFile(pathToFile, "");
+    await workspace.fs.writeFile(uri, new Uint8Array());
   }
 
   refresh();
@@ -186,7 +190,8 @@ async function createDir() {
 
   if (newFileName == null) return;
   let pathToDir = path.join(base, newFileName);
-  await fs.mkdir(pathToDir, { recursive: true });
+  let uri = Uri.file(pathToDir);
+  await workspace.fs.createDirectory(uri);
   refresh();
 }
 
@@ -209,9 +214,10 @@ async function openFileUnderCursor() {
   let relativePath = getFileUnderCursor();
   let basePath = getCurrentDir();
   let newPath = path.join(basePath, relativePath);
-  let stat = await fs.lstat(newPath);
+  let uri = Uri.file(newPath);
+  let stat = await workspace.fs.stat(uri);
 
-  if (stat.isDirectory()) {
+  if (stat.type & FileType.Directory) {
     await openVsnetrw(newPath);
   } else {
     await openFileInVscodeEditor(newPath);
@@ -230,46 +236,23 @@ async function openParentDirectory() {
 }
 
 /**
- * Combines the results from readdir and stat. Files/dirs that have stat
- * errors are silently omitted from the results.
- *
- * @param {string} dirName
- * @return {Promise<{ file: string, stat: import("fs").Stats }[]>}
- */
-async function readdirAndStat(dirName) {
-  let files = await fs.readdir(dirName);
-
-  let stats = await Promise.all(files
-    .map(file => path.join(dirName, file))
-    .map(file => fs.stat(file).catch(() => null))
-  );
-
-  let results = files.map((file, index) => {
-    let stat = stats[index];
-    return { file, stat };
-  });
-
-  // @ts-ignore
-  return results.filter(result => result.stat != null);
-}
-
-/**
  * Renders the text content for the current vsnetrw document.
- * @param {Uri} uri
+ * @param {Uri} documentUri
  * @returns {Promise<string>}
  */
-async function provideTextDocumentContent(uri) {
-  let pathName = uri.query;
-  let results = await readdirAndStat(pathName);
+async function provideTextDocumentContent(documentUri) {
+  let pathName = documentUri.query;
+  let pathUri = Uri.file(pathName);
+  let results = await workspace.fs.readDirectory(pathUri);
 
-  results.sort((a, b) => {
-    return a.stat.isDirectory() ?
-      b.stat.isDirectory() ? 0 : -1 :
-      a.file < b.file ? -1 : 1;
+  results.sort(([aName, aType], [bName, bType]) => {
+    return aType & FileType.Directory ?
+      bType & FileType.Directory ? 0 : -1 :
+      aName < bName ? -1 : 1;
   });
 
-  let listings = results.map(res => {
-    return res.stat.isDirectory() ? `${res.file}/` : res.file;
+  let listings = results.map(([name, type]) => {
+    return type & FileType.Directory ? `${name}/` : name;
   });
 
   let hasParent = path.dirname(pathName) !== pathName;
