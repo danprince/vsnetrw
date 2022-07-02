@@ -2,8 +2,10 @@
   "name": "vsnetrw",
   "version": "0.0.0",
   "main": "extension.js",
+  "license": "unlicense",
+  "repository": "danprince/vsnetrw",
   "engines": {
-    "vscode": "^1.22.0"
+    "vscode": "^1.68.0"
   },
   "activationEvents": [
     "onCommand:vsnetrw.open"
@@ -12,7 +14,9 @@
     "languages": [
       {
         "id": "vsnetrw",
-        "filenames": ["vsnetrw"],
+        "filenames": [
+          "vsnetrw"
+        ],
         "configuration": "./language-configuration.json"
       }
     ],
@@ -82,6 +86,7 @@
   "devDependencies": {
     "@types/node": "^18.0.0",
     "@types/vscode": "^1.68.1",
-    "typescript": "^4.7.4"
+    "typescript": "^4.7.4",
+    "vsce": "^2.9.2"
   }
 }
