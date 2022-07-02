@@ -14,7 +14,7 @@
       "name": "keyword"
     },
     "hidden": {
-      "match": "^\\.[^.].*$",
+      "match": "^\\..*$",
       "name": "comment"
     }
   }
