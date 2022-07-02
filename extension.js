@@ -295,7 +295,7 @@ function activate(context) {
 
   context.subscriptions.push(
     commands.registerCommand("vsnetrw.open", openFileUnderCursor),
-    commands.registerCommand("vsnetrw.up", openParentDirectory),
+    commands.registerCommand("vsnetrw.openParent", openParentDirectory),
     commands.registerCommand("vsnetrw.rename", renameFileUnderCursor),
     commands.registerCommand("vsnetrw.delete", deleteFileUnderCursor),
     commands.registerCommand("vsnetrw.create", createFile),
