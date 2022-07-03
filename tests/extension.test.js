@@ -21,7 +21,7 @@ let {
 /**
  * @param {string} dir
  */
-async function openExplorer(dir) {
+async function openExplorer(dir = process.cwd()) {
   await vscode.commands.executeCommand("vsnetrw.open", dir);
 }
 
@@ -217,11 +217,13 @@ describe("renaming", () => {
     mockWarningMessage("Overwrite");
     await execCommand("vsnetrw.rename");
     assertLinesMatch(["../", "b.txt"]);
-    assert(!await fileExists(path.join(dir, "a.txt")));
-    assert(await fileExists(path.join(dir, "b.txt")));
+    let contents = await fs.readFile("b.txt");
+    assert.equal(contents, "a.txt");
+    assert(!await fileExists("a.txt"));
+    assert(await  fileExists("b.txt"));
   });
 
-  test("renaming a file and confirm overwriting", async () => {
+  test("renaming a file and cancel overwriting", async () => {
     let dir = await createTempWorkspace(["a.txt", "b.txt"]);
     await openExplorer(dir);
     await moveToLine("a.txt");
@@ -229,8 +231,8 @@ describe("renaming", () => {
     mockWarningMessage("Cancel");
     await execCommand("vsnetrw.rename");
     assertLinesMatch(["../", "a.txt", "b.txt"]);
-    assert(await fileExists(path.join(dir, "a.txt")));
-    assert(await fileExists(path.join(dir, "b.txt")));
+    assert(await fileExists("a.txt"));
+    assert(await fileExists("b.txt"));
   });
 });
 
