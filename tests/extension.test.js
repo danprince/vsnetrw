@@ -198,7 +198,7 @@ describe("renaming", () => {
     assert(await fileExists("b"));
   });
 
-  test("renaming a file and confirm overwrite", async () => {
+  test("overwriting another file", async () => {
     await createTempWorkspace(["a.txt", "b.txt"]);
     await openExplorer();
     await moveToLine("a.txt");
@@ -211,7 +211,7 @@ describe("renaming", () => {
     assert(await fileExists("b.txt"));
   });
 
-  test("renaming a file and cancel overwriting", async () => {
+  test("cancelling an overwrite", async () => {
     await createTempWorkspace(["a.txt", "b.txt"]);
     await openExplorer();
     await moveToLine("a.txt");
@@ -256,5 +256,14 @@ describe("creating", () => {
     assertLinesMatch(["../", "a/"]);
     let stat = await fs.stat("a/b/c");
     assert(stat.isFile());
+  });
+
+  test("creating does not overwrite", async () => {
+    await createTempWorkspace(["a.txt"]);
+    await openExplorer();
+    mockInputBox("a.txt");
+    await execCommand("vsnetrw.create");
+    let contents = await fs.readFile("a.txt");
+    assert.equal(contents, "a.txt");
   });
 });
