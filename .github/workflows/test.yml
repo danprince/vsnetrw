@@ -7,10 +7,15 @@ jobs:
     name: Test
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v3
-      - run: yarn install --frozen-lockfile
-      - run: yarn tsc
-      - uses: GabrielBB/xvfb-action@v1.0
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Setup Node
+        uses: actions/setup-node@v3
+      - name: Dependencies
+        run: yarn install --frozen-lockfile
+      - name: Typecheck
+        run: yarn tsc
+      - name: Tests
+        uses: GabrielBB/xvfb-action@v1.0
         with:
           run: yarn test
