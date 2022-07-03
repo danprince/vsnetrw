@@ -19,7 +19,8 @@
   },
   "scripts": {
     "test": "node tests/index.js",
-    "build": "tsc && vsce package"
+    "build": "tsc && vsce package",
+    "install:dev": "yarn build && code --install-extension *.vsix"
   },
   "activationEvents": [
     "onCommand:vsnetrw.open"
