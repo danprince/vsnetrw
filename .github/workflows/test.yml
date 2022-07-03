@@ -11,4 +11,6 @@ jobs:
       - uses: actions/setup-node@v3
       - run: yarn install --frozen-lockfile
       - run: yarn tsc
-      - run: yarn test
+      - uses: GabrielBB/xvfb-action@v1.0
+        with:
+          run: yarn test
