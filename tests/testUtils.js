@@ -58,8 +58,7 @@ async function createTempWorkspace(files) {
 
   // Change to the new baseDir to allow for relative paths in tests
   process.chdir(baseDir);
-
-  return baseDir;
+  return process.cwd();
 }
 
 /**

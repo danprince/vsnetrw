@@ -30,7 +30,7 @@ afterEach(() => resetWindowMocks());
 
 describe("rendering", () => {
   test("renders correctly", async () => {
-    let dir = await createTempWorkspace([
+    await createTempWorkspace([
       ".git/",
       ".env",
       "a.txt",
@@ -39,7 +39,7 @@ describe("rendering", () => {
       "d/d1.txt",
       "e/"
     ]);
-    await openExplorer(dir);
+    await openExplorer();
     assertLinesMatch([
       "../",
       ".git/",
@@ -64,8 +64,8 @@ describe("navigation", () => {
   });
 
   test("opening a directory from an explorer", async () => {
-    let dir = await createTempWorkspace(["a.txt", "d/d1.txt"]);
-    await openExplorer(dir);
+    await createTempWorkspace(["a.txt", "d/d1.txt"]);
+    await openExplorer();
     await moveToLine("d/");
     await execCommand("vsnetrw.openAtCursor");
     assertLinesMatch(["../", "d1.txt"]);
@@ -73,7 +73,7 @@ describe("navigation", () => {
 
   test("opening a file from an explorer", async () => {
     let dir = await createTempWorkspace(["a.txt"]);
-    await openExplorer(dir);
+    await openExplorer();
     await moveToLine("a.txt");
     await execCommand("vsnetrw.openAtCursor");
     assert(vscode.window.activeTextEditor);
@@ -92,8 +92,8 @@ describe("navigation", () => {
   });
 
   test("opening the home dir", async () => {
-    let dir = await createTempWorkspace(["a.txt", "b/b.txt"]);
-    await openExplorer(dir);
+    await createTempWorkspace(["a.txt", "b/b.txt"]);
+    await openExplorer();
     await execCommand("vsnetrw.openHome");
     let editor = vscode.window.activeTextEditor;
     assert(editor);
@@ -109,9 +109,9 @@ describe("navigation", () => {
 
 describe("refresh", () => {
   test("refreshing the explorer", async () => {
-    let dir = await createTempWorkspace([]);
-    await openExplorer(dir);
-    await fs.writeFile(path.join(dir, "b.txt"), "");
+    await createTempWorkspace([]);
+    await openExplorer();
+    await fs.writeFile("b.txt", "");
     await execCommand("vsnetrw.refresh");
     assertLinesMatch(["../", "b.txt"]);
   });
@@ -119,25 +119,23 @@ describe("refresh", () => {
 
 describe("deleting", () => {
   test("deleting a file", async () => {
-    let dir = await createTempWorkspace(["a.txt"]);
-    await openExplorer(dir);
+    await createTempWorkspace(["a.txt"]);
+    await openExplorer();
     await moveToLine("a.txt");
     await execCommand("vsnetrw.delete");
     assertLinesMatch(["../"]);
-    let file = path.join(dir, "a.txt");
-    let exists = await fileExists(file);
+    let exists = await fileExists("a.txt");
     assert(!exists);
   });
 
   test("deleting an empty directory", async () => {
-    let dir = await createTempWorkspace(["b/"]);
-    await openExplorer(dir);
+    await createTempWorkspace(["b/"]);
+    await openExplorer();
     await moveToLine("b/");
     await execCommand("vsnetrw.delete");
     let text = getActiveEditorText();
     assert.equal(text, "../");
-    let file = path.join(dir, "b");
-    let exists = await fileExists(file);
+    let exists = await fileExists("b");
     assert(!exists);
   });
 
@@ -155,63 +153,63 @@ describe("deleting", () => {
   });
 
   test("delete a non-empty directory", async () => {
-    let dir = await createTempWorkspace(["b/b.txt"]);
-    await openExplorer(dir);
+    await createTempWorkspace(["b/b.txt"]);
+    await openExplorer();
     await moveToLine("b/");
     mockWarningMessage("Delete");
     await execCommand("vsnetrw.delete");
     assertLinesMatch(["../"]);
-    assert(!await fileExists(path.join(dir, "b")));
+    assert(!await fileExists("b"));
   });
 });
 
 describe("renaming", () => {
   test("renaming a file", async () => {
-    let dir = await createTempWorkspace(["a.txt"]);
-    await openExplorer(dir);
+    await createTempWorkspace(["a.txt"]);
+    await openExplorer();
     await moveToLine("a.txt");
     mockInputBox("b.txt");
     await execCommand("vsnetrw.rename");
     assertLinesMatch(["../", "b.txt"]);
-    assert(!await fileExists(path.join(dir, "a.txt")));
-    assert(await fileExists(path.join(dir, "b.txt")));
+    assert(!await fileExists("a.txt"));
+    assert(await fileExists("b.txt"));
   });
 
   test("renaming a file into a new directory", async () => {
-    let dir = await createTempWorkspace(["a.txt"]);
-    await openExplorer(dir);
+    await createTempWorkspace(["a.txt"]);
+    await openExplorer();
     await moveToLine("a.txt");
     mockInputBox("b/c.txt");
     await execCommand("vsnetrw.rename");
     assertLinesMatch(["../", "b/"]);
-    assert(!await fileExists(path.join(dir, "a.txt")));
-    assert(await fileExists(path.join(dir, "b/c.txt")));
+    assert(!await fileExists("a.txt"));
+    assert(await fileExists("b/c.txt"));
   });
 
   test("cancel renaming a file", async () => {
-    let dir = await createTempWorkspace(["a.txt"]);
-    await openExplorer(dir);
+    await createTempWorkspace(["a.txt"]);
+    await openExplorer();
     await moveToLine("a.txt");
     mockInputBox(undefined);
     await execCommand("vsnetrw.rename");
     assertLinesMatch(["../", "a.txt"]);
-    assert(await fileExists(path.join(dir, "a.txt")));
+    assert(await fileExists("a.txt"));
   });
 
   test("renaming a directory", async () => {
-    let dir = await createTempWorkspace(["a/b.txt"]);
-    await openExplorer(dir);
+    await createTempWorkspace(["a/b.txt"]);
+    await openExplorer();
     await moveToLine("a/");
     mockInputBox("b");
     await execCommand("vsnetrw.rename");
     assertLinesMatch(["../", "b/"]);
-    assert(!await fileExists(path.join(dir, "a")));
-    assert(await fileExists(path.join(dir, "b")));
+    assert(!await fileExists("a"));
+    assert(await fileExists("b"));
   });
 
   test("renaming a file and confirm overwrite", async () => {
-    let dir = await createTempWorkspace(["a.txt", "b.txt"]);
-    await openExplorer(dir);
+    await createTempWorkspace(["a.txt", "b.txt"]);
+    await openExplorer();
     await moveToLine("a.txt");
     mockInputBox("b.txt");
     mockWarningMessage("Overwrite");
@@ -224,8 +222,8 @@ describe("renaming", () => {
   });
 
   test("renaming a file and cancel overwriting", async () => {
-    let dir = await createTempWorkspace(["a.txt", "b.txt"]);
-    await openExplorer(dir);
+    await createTempWorkspace(["a.txt", "b.txt"]);
+    await openExplorer();
     await moveToLine("a.txt");
     mockInputBox("b.txt");
     mockWarningMessage("Cancel");
@@ -238,37 +236,36 @@ describe("renaming", () => {
 
 describe("creating", () => {
   test("creating a file", async () => {
-    let dir = await createTempWorkspace(["a.txt"]);
-    await openExplorer(dir);
+    await createTempWorkspace(["a.txt"]);
+    await openExplorer();
     mockInputBox("b.txt");
     await execCommand("vsnetrw.create");
     assertLinesMatch(["../", "a.txt", "b.txt"]);
   });
 
   test("creating a directory", async () => {
-    let dir = await createTempWorkspace([]);
-    await openExplorer(dir);
+    await createTempWorkspace([]);
+    await openExplorer();
     mockInputBox("a");
     await execCommand("vsnetrw.createDir");
     assertLinesMatch(["../", "a/"]);
   });
 
   test("creating a directory with trailing slash", async () => {
-    let dir = await createTempWorkspace([]);
-    await openExplorer(dir);
+    await createTempWorkspace([]);
+    await openExplorer();
     mockInputBox("a/");
     await execCommand("vsnetrw.create");
     assertLinesMatch(["../", "a/"]);
   });
 
   test("creating intermediate directories", async () => {
-    let dir = await createTempWorkspace([]);
-    await openExplorer(dir);
+    await createTempWorkspace([]);
+    await openExplorer();
     mockInputBox("a/b/c");
     await execCommand("vsnetrw.create");
     assertLinesMatch(["../", "a/"]);
-    let uri = vscode.Uri.file(path.join(dir, "a/b/c"));
-    let stat = await vscode.workspace.fs.stat(uri);
-    assert.equal(stat.type, vscode.FileType.File);
+    let stat = await fs.stat("a/b/c");
+    assert(stat.isFile());
   });
 });
