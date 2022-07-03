@@ -17,6 +17,9 @@ Press <kbd>-</kbd> (`vsnetrw.open`) to open a file explorer at the parent direct
 | <kbd>D</kbd> | `vsnetrw.delete` | Delete the file or directory under the cursor. |
 | <kbd>ctrl+l</kbd> | `vsnetrw.refresh` | Refresh the directory listing. |
 
+## Install
+Download a VSIX from [releases](https://github.com/danprince/vsnetrw/releases) and install it by running `>Extensions: Install from VSIX`.
+
 [netrw]: https://www.vim.org/scripts/script.php?script_id=1075
 [vinegar]: https://github.com/tpope/vim-vinegar
 [dired]: https://www.emacswiki.org/emacs/DiredMode
