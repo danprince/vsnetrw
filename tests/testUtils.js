@@ -98,25 +98,27 @@ function assertLinesMatch(lines) {
 }
 
 let _showInputBox = vscode.window.showInputBox;
-let _showWarningMessage = vscode.window.showWarningMessage;
+let _createInputBox = vscode.window.createInputBox;
 
 /**
- * @param {string | undefined} value
+ * @param {...string} values
  */
-function mockInputBox(value) {
-  vscode.window.showInputBox = async () => value;
+function mockInputBox(...values) {
+  let next = () => values.shift();
+  vscode.window.showInputBox = async () => next();
+  vscode.window.createInputBox = () => {
+    let emitter = new vscode.EventEmitter();
+    let inputBox = _createInputBox();
+    // @ts-ignore
+    inputBox.onDidChangeValue = emitter.event;
+    Promise.resolve().then(() => emitter.fire(next()));
+    return inputBox;
+  };
 }
 
-/**
- * @param {string | undefined} value
- */
-function mockWarningMessage(value) {
-  vscode.window.showWarningMessage = async () => value;
-}
-
-function resetWindowMocks() {
+function resetWidgetMocks() {
   vscode.window.showInputBox = _showInputBox;
-  vscode.window.showWarningMessage = _showWarningMessage;
+  vscode.window.createInputBox = _createInputBox;
 }
 
 /**
@@ -139,6 +141,5 @@ module.exports =  {
   moveToLine,
   getActiveEditorText,
   mockInputBox,
-  mockWarningMessage,
-  resetWindowMocks,
+  resetWidgetMocks,
 };

@@ -11,9 +11,8 @@ let {
   moveToLine,
   getActiveEditorText,
   cleanTempWorkspaces,
-  resetWindowMocks,
+  resetWidgetMocks,
   mockInputBox,
-  mockWarningMessage,
   assertLinesMatch,
   execCommand,
 } = require("./testUtils");
@@ -26,7 +25,7 @@ async function openExplorer(dir = process.cwd()) {
 }
 
 before(() => cleanTempWorkspaces());
-afterEach(() => resetWindowMocks());
+afterEach(() => resetWidgetMocks());
 
 describe("rendering", () => {
   test("renders correctly", async () => {
@@ -143,7 +142,7 @@ describe("deleting", () => {
     let dir = await createTempWorkspace(["b/b.txt"]);
     await openExplorer(dir);
     await moveToLine("b/");
-    mockWarningMessage("Cancel");
+    mockInputBox("n");
     await execCommand("vsnetrw.delete");
     let text = getActiveEditorText();
     assert.equal(text, ["../", "b/"].join("\n"));
@@ -152,11 +151,11 @@ describe("deleting", () => {
     assert(exists);
   });
 
-  test("delete a non-empty directory", async () => {
+  test("delete non-empty directory", async () => {
     await createTempWorkspace(["b/b.txt"]);
     await openExplorer();
     await moveToLine("b/");
-    mockWarningMessage("Delete");
+    mockInputBox("y");
     await execCommand("vsnetrw.delete");
     assertLinesMatch(["../"]);
     assert(!await fileExists("b"));
@@ -190,7 +189,7 @@ describe("renaming", () => {
     await createTempWorkspace(["a.txt"]);
     await openExplorer();
     await moveToLine("a.txt");
-    mockInputBox(undefined);
+    mockInputBox("");
     await execCommand("vsnetrw.rename");
     assertLinesMatch(["../", "a.txt"]);
     assert(await fileExists("a.txt"));
@@ -211,22 +210,20 @@ describe("renaming", () => {
     await createTempWorkspace(["a.txt", "b.txt"]);
     await openExplorer();
     await moveToLine("a.txt");
-    mockInputBox("b.txt");
-    mockWarningMessage("Overwrite");
+    mockInputBox("b.txt", "y");
     await execCommand("vsnetrw.rename");
     assertLinesMatch(["../", "b.txt"]);
     let contents = await fs.readFile("b.txt");
     assert.equal(contents, "a.txt");
     assert(!await fileExists("a.txt"));
-    assert(await  fileExists("b.txt"));
+    assert(await fileExists("b.txt"));
   });
 
   test("renaming a file and cancel overwriting", async () => {
     await createTempWorkspace(["a.txt", "b.txt"]);
     await openExplorer();
     await moveToLine("a.txt");
-    mockInputBox("b.txt");
-    mockWarningMessage("Cancel");
+    mockInputBox("b.txt", "n");
     await execCommand("vsnetrw.rename");
     assertLinesMatch(["../", "a.txt", "b.txt"]);
     assert(await fileExists("a.txt"));

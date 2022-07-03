@@ -50,6 +50,40 @@ function refresh() {
 }
 
 /**
+ * @param {string} prompt
+ * @returns {Promise<boolean>}
+ */
+function confirm(prompt) {
+  return new Promise(resolve => {
+    let inputBox = window.createInputBox();
+    let resolveOnHide = true;
+    inputBox.validationMessage = `${prompt} (y or n)`;
+
+    let onChange = inputBox.onDidChangeValue(text => {
+      let ch = text[0].toLowerCase();
+      if (ch === "y") {
+        resolve(true);
+        resolveOnHide = false;
+        inputBox.hide();
+      } else if (ch === "n" || "q") {
+        inputBox.hide();
+      }
+    });
+
+    let onHide = inputBox.onDidHide(text => {
+      inputBox.dispose();
+      onChange.dispose();
+      onHide.dispose();
+      if (resolveOnHide) {
+        resolve(false);
+      }
+    });
+
+    inputBox.show();
+  });
+}
+
+/**
  * Check whether the active editor is an explorer.
  * @param {import("vscode").TextEditor | undefined} editor
  * @returns {editor is import("vscode").TextEditor}
@@ -176,8 +210,8 @@ async function renameFileUnderCursor() {
   let willOverwrite = await doesFileExist(newPath);
 
   if (willOverwrite) {
-    let selection = await window.showWarningMessage(`Overwrite existing file?`, "Cancel", "Overwrite");
-    if (selection !== "Overwrite") return;
+    let ok = await confirm("Overwrite existing file?");
+    if (!ok) return;
   }
 
   let currentUri = Uri.file(currentPath);
@@ -203,8 +237,8 @@ async function deleteFileUnderCursor() {
   if (file == "../") return;
 
   if (await isNonEmptyDir(pathToFile)) {
-    let selection = await window.showWarningMessage("Delete non-empty directory?", "Cancel", "Delete");
-    if (selection !== "Delete") return;
+    let ok = await confirm("Delete non-empty directory?");
+    if (!ok) return;
   }
 
   let uri = Uri.file(pathToFile);
