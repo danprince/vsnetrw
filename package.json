@@ -30,7 +30,8 @@
     "commands": [
       {
         "command": "vsnetrw.open",
-        "title": "Open Vsnetrw"
+        "title": "Open Explorer",
+        "category": "vsnetrw"
       }
     ],
     "keybindings": [

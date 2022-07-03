@@ -133,6 +133,7 @@ function getLineUnderCursor() {
  */
 async function openFileInVscodeEditor(fileName) {
   let uri = Uri.file(fileName);
+  saveSelections();
   await commands.executeCommand("vscode.open", uri);
 }
 

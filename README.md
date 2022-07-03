@@ -2,11 +2,11 @@
 A split file explorer for vscode, inspired by [netrw][netrw], [vim-vinegar][vinegar], [dired][dired], and [vim-dirvish][dirvish].
 
 ## Shortcuts
-Press <kbd>-</kbd> to open a file explorer at the parent directory of the currently active text editor. Once open the following shortcuts are available.
+Press <kbd>-</kbd> (`vsnetrw.open`) to open a file explorer at the parent directory of the currently active text editor. Once open the following shortcuts are available.
 
 | Default Shortcut | Command | Description |
 | ---------------- | ------- | ----------- |
-| <kbd>enter</kbd> | `vsnetrw.open` | Open the file or directory under the cursor |
+| <kbd>enter</kbd> | `vsnetrw.openAtCursor` | Open the file or directory under the cursor |
 | <kbd>-</kbd> | `vsnetrw.openParent` | Jump to the parent directory |
 | <kbd>R</kbd> | `vsnetrw.rename` | Rename the file or directory under the cursor |
 | <kbd>%</kbd> | `vsnetrw.create` | Create a new file or directory. If the name ends with a `/` a directory will be created. Also creates the intermediate path if it doesn't already exist. |
