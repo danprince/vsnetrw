@@ -1,5 +1,6 @@
-let assert = require("assert");
+let assert = require("node:assert");
 let path = require("node:path");
+let { homedir } = require("node:os");
 let { window, workspace, commands, Uri, EventEmitter, FileType, Selection } = require("vscode");
 
 /**
@@ -54,7 +55,7 @@ function refresh() {
  * @returns {editor is import("vscode").TextEditor}
  */
 function isExplorer(editor) {
-  return window.activeTextEditor?.document.uri.scheme === scheme;
+  return editor?.document.uri.scheme === scheme;
 }
 
 /**
@@ -94,7 +95,7 @@ function restoreSelections() {
  * Open a new vsnetrw document for a given directory.
  * @param {string} dirName
  */
-async function openExplorer(dirName = ".") {
+async function openExplorer(dirName) {
   saveSelections();
   let uri = createUri(dirName);
   let doc = await workspace.openTextDocument(uri);
@@ -245,13 +246,13 @@ async function createDir() {
 function getInitialDir() {
   let editor = window.activeTextEditor;
 
-  if (editor) {
+  if (editor && !editor.document.isUntitled) {
     return path.dirname(editor.document.uri.fsPath);
   } else if (workspace.workspaceFolders) {
     let folder = workspace.workspaceFolders[0];
     return folder.uri.fsPath;
   } else {
-    return "~";
+    return homedir();
   }
 }
 
@@ -289,10 +290,32 @@ async function openFileUnderCursor() {
  */
 async function openParentDirectory() {
   let editor = window.activeTextEditor;
-  assert(editor);
+  assert(editor, "No active editor");
   let pathName = editor.document.uri.query;
   let parentPath = path.dirname(pathName);
   openExplorer(parentPath);
+}
+
+/**
+ * Opens the home directory in a vsnetrw document. If there's an active workspace folder
+ * it will be used, otherwise the user's home directory is used.
+ */
+async function openHomeDirectory() {
+  let folder = homedir();
+  let editor = window.activeTextEditor;
+
+  if (editor) {
+    let workspaceFolder = (
+      workspace.getWorkspaceFolder(editor.document.uri) ||
+      workspace.workspaceFolders?.[0]
+    );
+
+    if (workspaceFolder) {
+      folder = workspaceFolder.uri.fsPath;
+    }
+  }
+
+  openExplorer(folder);
 }
 
 /**
@@ -341,6 +364,7 @@ function activate(context) {
     commands.registerCommand("vsnetrw.open", openNewExplorer),
     commands.registerCommand("vsnetrw.openAtCursor", openFileUnderCursor),
     commands.registerCommand("vsnetrw.openParent", openParentDirectory),
+    commands.registerCommand("vsnetrw.openHome", openHomeDirectory),
     commands.registerCommand("vsnetrw.rename", renameFileUnderCursor),
     commands.registerCommand("vsnetrw.delete", deleteFileUnderCursor),
     commands.registerCommand("vsnetrw.create", createFile),

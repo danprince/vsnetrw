@@ -38,7 +38,7 @@
       {
         "command": "vsnetrw.open",
         "key": "-",
-        "when": "editorLangId != vsnetrw && vim.mode == 'Normal'"
+        "when": "editorLangId != vsnetrw && (vim.mode == 'Normal' || !activeEditor)"
       },
       {
         "command": "vsnetrw.openAtCursor",
@@ -48,6 +48,11 @@
       {
         "command": "vsnetrw.openParent",
         "key": "-",
+        "when": "editorLangId == vsnetrw && vim.mode =~ /^(?!SearchInProgressMode|CommandlineInProgress).*$/"
+      },
+      {
+        "command": "vsnetrw.openHome",
+        "key": "shift+`",
         "when": "editorLangId == vsnetrw && vim.mode =~ /^(?!SearchInProgressMode|CommandlineInProgress).*$/"
       },
       {
