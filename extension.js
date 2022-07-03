@@ -50,8 +50,10 @@ function refresh() {
 
 /**
  * Check whether the active editor is an explorer.
+ * @param {import("vscode").TextEditor | undefined} editor
+ * @returns {editor is import("vscode").TextEditor}
  */
-function isExplorer() {
+function isExplorer(editor) {
   return window.activeTextEditor?.document.uri.scheme === scheme;
 }
 
@@ -68,9 +70,8 @@ let selectionsMemoryMap = new Map();
  */
 function saveSelections() {
   let editor = window.activeTextEditor;
-  assert(editor, "No active editor");
 
-  if (isExplorer()) {
+  if (isExplorer(editor)) {
     let key = getCurrentDir();
     selectionsMemoryMap.set(key, editor.selections);
   }
@@ -81,9 +82,8 @@ function saveSelections() {
  */
 function restoreSelections() {
   let editor = window.activeTextEditor;
-  assert(editor, "No active editor");
 
-  if (isExplorer()) {
+  if (isExplorer(editor)) {
     let key = getCurrentDir();
     let selections = selectionsMemoryMap.get(key);
     if (selections) editor.selections = selections;
