@@ -117,6 +117,21 @@ async function isNonEmptyDir(file) {
 }
 
 /**
+ * Checks whether a file exists.
+ * @param {string} file
+ * @returns {Promise<boolean>}
+ */
+async function doesFileExist(file) {
+  try {
+    let uri = Uri.file(file);
+    await workspace.fs.stat(uri);
+    return true;
+  } catch (err) {
+    return false;
+  }
+}
+
+/**
  * Returns the name of the file under the cursor in the current vsnetrw
  * document.
  * @returns {string}
@@ -158,14 +173,17 @@ async function renameFileUnderCursor() {
 
   let currentPath = path.join(base, file);
   let newPath = path.join(base, newName);
-  let newPathDir = path.dirname(newPath);
+  let willOverwrite = await doesFileExist(newPath);
+
+  if (willOverwrite) {
+    let selection = await window.showWarningMessage(`Overwrite existing file?`, "Cancel", "Overwrite");
+    if (selection !== "Overwrite") return;
+  }
 
   let currentUri = Uri.file(currentPath);
   let newUri = Uri.file(newPath);
-  let newDirUri = Uri.file(newPathDir);
 
-  await workspace.fs.createDirectory(newDirUri);
-  await workspace.fs.rename(currentUri, newUri)
+  await workspace.fs.rename(currentUri, newUri, { overwrite: true });
 
   refresh();
 }
@@ -211,6 +229,9 @@ async function createFile() {
   if (newFileName == null) return;
   let pathToFile = path.join(base, newFileName);
   let uri = Uri.file(pathToFile);
+
+  // Ignore if the file already exists
+  if (await doesFileExist(pathToFile)) return;
 
   if (newFileName.endsWith("/")) {
     await workspace.fs.createDirectory(uri)
@@ -259,9 +280,8 @@ function getInitialDir() {
 /**
  * Opens a new explorer editor.
  */
-async function openNewExplorer() {
-  let dirName = getInitialDir();
-  await openExplorer(dirName);
+async function openNewExplorer(dir = getInitialDir()) {
+  await openExplorer(dir);
 }
 
 /**
