@@ -239,12 +239,28 @@ async function createDir() {
   refresh();
 }
 
-async function openNewExplorer() {
+/**
+ * @returns {string}
+ */
+function getInitialDir() {
   let editor = window.activeTextEditor;
-  let doc = editor?.document;
-  let fileUri = doc ? doc.uri.fsPath : ".";
-  let pathName = path.dirname(fileUri);
-  await openExplorer(pathName);
+
+  if (editor) {
+    return path.dirname(editor.document.uri.fsPath);
+  } else if (workspace.workspaceFolders) {
+    let folder = workspace.workspaceFolders[0];
+    return folder.uri.fsPath;
+  } else {
+    return "~";
+  }
+}
+
+/**
+ * Opens a new explorer editor.
+ */
+async function openNewExplorer() {
+  let dirName = getInitialDir();
+  await openExplorer(dirName);
 }
 
 /**
