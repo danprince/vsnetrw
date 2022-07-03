@@ -45,17 +45,22 @@
       {
         "command": "vsnetrw.open",
         "key": "-",
-        "when": "editorLangId != vsnetrw && (vim.mode == 'Normal' || !activeEditor)"
+        "when": "!activeEditor"
+      },
+      {
+        "command": "vsnetrw.open",
+        "key": "-",
+        "when": "editorTextFocus && editorLangId != vsnetrw && vim.mode == 'Normal'"
       },
       {
         "command": "vsnetrw.openAtCursor",
         "key": "enter",
-        "when": "editorLangId == vsnetrw && vim.mode =~ /^(?!SearchInProgressMode|CommandlineInProgress).*$/"
+        "when": "editorTextFocus && editorLangId == vsnetrw && vim.mode =~ /^(?!SearchInProgressMode|CommandlineInProgress).*$/"
       },
       {
         "command": "vsnetrw.openParent",
         "key": "-",
-        "when": "editorLangId == vsnetrw && vim.mode =~ /^(?!SearchInProgressMode|CommandlineInProgress).*$/"
+        "when": "editorTextFocus && editorLangId == vsnetrw && vim.mode =~ /^(?!SearchInProgressMode|CommandlineInProgress).*$/"
       },
       {
         "command": "vsnetrw.openHome",
@@ -65,27 +70,27 @@
       {
         "command": "vsnetrw.rename",
         "key": "shift+r",
-        "when": "editorLangId == vsnetrw && vim.mode =~ /^(?!SearchInProgressMode|CommandlineInProgress).*$/"
+        "when": "editorTextFocus && editorLangId == vsnetrw && vim.mode =~ /^(?!SearchInProgressMode|CommandlineInProgress).*$/"
       },
       {
         "command": "vsnetrw.delete",
         "key": "shift+d",
-        "when": "editorLangId == vsnetrw && vim.mode =~ /^(?!SearchInProgressMode|CommandlineInProgress).*$/"
+        "when": "editorTextFocus && editorLangId == vsnetrw && vim.mode =~ /^(?!SearchInProgressMode|CommandlineInProgress).*$/"
       },
       {
         "command": "vsnetrw.create",
         "key": "shift+5",
-        "when": "editorLangId == vsnetrw && vim.mode =~ /^(?!SearchInProgressMode|CommandlineInProgress).*$/"
+        "when": "editorTextFocus && editorLangId == vsnetrw && vim.mode =~ /^(?!SearchInProgressMode|CommandlineInProgress).*$/"
       },
       {
         "command": "vsnetrw.createDir",
         "key": "d",
-        "when": "editorLangId == vsnetrw && vim.mode =~ /^(?!SearchInProgressMode|CommandlineInProgress).*$/"
+        "when": "editorTextFocus && editorLangId == vsnetrw && vim.mode =~ /^(?!SearchInProgressMode|CommandlineInProgress).*$/"
       },
       {
         "command": "vsnetrw.refresh",
         "key": "ctrl+l",
-        "when": "editorLangId == vsnetrw && vim.mode =~ /^(?!SearchInProgressMode|CommandlineInProgress).*$/"
+        "when": "editorTextFocus && editorLangId == vsnetrw && vim.mode =~ /^(?!SearchInProgressMode|CommandlineInProgress).*$/"
       }
     ],
     "grammars": [
