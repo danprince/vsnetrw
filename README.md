@@ -10,11 +10,11 @@ Press <kbd>-</kbd> (`vsnetrw.open`) to open a file explorer at the parent direct
 | ---------------- | ------- | ----------- |
 | <kbd>enter</kbd> | `vsnetrw.openAtCursor` | Open the file or directory under the cursor |
 | <kbd>-</kbd> | `vsnetrw.openParent` | Jump to the parent directory |
-| <kbd>~</kbd> | `vsnetrw.openHome` | Jump to the root of the  |
+| <kbd>~</kbd> | `vsnetrw.openHome` | Jump to the root of the current workspace folder, or user's homedir. |
 | <kbd>R</kbd> | `vsnetrw.rename` | Rename the file or directory under the cursor |
-| <kbd>%</kbd> | `vsnetrw.create` | Create a new file or directory. If the name ends with a `/` a directory will be created. Also creates the intermediate path if it doesn't already exist. |
-| <kbd>d</kbd> | `vsnetrw.createDir` | Create a new directory. Also creates the intermediate path if it doesn't already exist. |
-| <kbd>D</kbd> | `vsnetrw.delete` | Delete the file or directory under the cursor. Shows a confirmation before deleting a non-empty directory. |
+| <kbd>%</kbd> | `vsnetrw.create` | Create a new file or directory (and any intermediate directories). |
+| <kbd>d</kbd> | `vsnetrw.createDir` | Create a new directory (and any intermediate ones). |
+| <kbd>D</kbd> | `vsnetrw.delete` | Delete the file or directory under the cursor. |
 | <kbd>ctrl+l</kbd> | `vsnetrw.refresh` | Refresh the directory listing. |
 
 [netrw]: https://www.vim.org/scripts/script.php?script_id=1075

@@ -121,16 +121,18 @@ describe("deleting", () => {
     await createTempWorkspace(["a.txt"]);
     await openExplorer();
     await moveToLine("a.txt");
+    mockInputBox("y");
     await execCommand("vsnetrw.delete");
     assertLinesMatch(["../"]);
     let exists = await fileExists("a.txt");
     assert(!exists);
   });
 
-  test("deleting an empty directory", async () => {
-    await createTempWorkspace(["b/"]);
+  test("deleting a directory", async () => {
+    await createTempWorkspace(["b/a"]);
     await openExplorer();
     await moveToLine("b/");
+    mockInputBox("y");
     await execCommand("vsnetrw.delete");
     let text = getActiveEditorText();
     assert.equal(text, "../");
@@ -138,7 +140,7 @@ describe("deleting", () => {
     assert(!exists);
   });
 
-  test("cancel deleting a non-empty directory", async () => {
+  test("cancel deleting", async () => {
     let dir = await createTempWorkspace(["b/b.txt"]);
     await openExplorer(dir);
     await moveToLine("b/");
@@ -149,16 +151,6 @@ describe("deleting", () => {
     let file = path.join(dir, "b");
     let exists = await fileExists(file);
     assert(exists);
-  });
-
-  test("delete non-empty directory", async () => {
-    await createTempWorkspace(["b/b.txt"]);
-    await openExplorer();
-    await moveToLine("b/");
-    mockInputBox("y");
-    await execCommand("vsnetrw.delete");
-    assertLinesMatch(["../"]);
-    assert(!await fileExists("b"));
   });
 });
 

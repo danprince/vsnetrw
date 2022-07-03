@@ -138,19 +138,6 @@ async function openExplorer(dirName) {
 }
 
 /**
- * Check whether a  file is a non-empty directory.
- * @param {string} file
- * @returns {Promise<boolean>}
- */
-async function isNonEmptyDir(file) {
-  let uri = Uri.file(file);
-  let stat = await workspace.fs.stat(uri);
-  if ((stat.type & FileType.Directory) === 0) return false;
-  let files = await workspace.fs.readDirectory(uri);
-  return files.length > 0;
-}
-
-/**
  * Checks whether a file exists.
  * @param {string} file
  * @returns {Promise<boolean>}
@@ -224,9 +211,6 @@ async function renameFileUnderCursor() {
 
 /**
  * Attempt to delete the file that is under the cursor in a vsnetrw document.
- *
- * If the file is a non-empty directory, then the user will be prompted before
- * deletion.
  */
 async function deleteFileUnderCursor() {
   let file = getLineUnderCursor();
@@ -236,10 +220,8 @@ async function deleteFileUnderCursor() {
   // Never allow the user to accidentally delete the parent dir
   if (file == "../") return;
 
-  if (await isNonEmptyDir(pathToFile)) {
-    let ok = await confirm("Delete non-empty directory?");
-    if (!ok) return;
-  }
+  let ok = await confirm(`Confirm deletion of ${file}`);
+  if (!ok) return;
 
   let uri = Uri.file(pathToFile);
   await workspace.fs.delete(uri, { recursive: true, useTrash: true });
