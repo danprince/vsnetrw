@@ -229,7 +229,18 @@ describe("creating", () => {
     await openExplorer();
     mockInputBox("b.txt");
     await execCommand("vsnetrw.create");
-    assertLinesMatch(["../", "a.txt", "b.txt"]);
+    assert(await fileExists("b.txt"));
+  });
+
+  test("creating a file opens the file", async () => {
+    let dir = await createTempWorkspace([]);
+    await openExplorer();
+    mockInputBox("b.txt");
+    await execCommand("vsnetrw.create");
+    assert.equal(
+      vscode.window.activeTextEditor?.document.fileName,
+      path.join(dir, "b.txt"),
+    );
   });
 
   test("creating a directory", async () => {
@@ -253,7 +264,6 @@ describe("creating", () => {
     await openExplorer();
     mockInputBox("a/b/c");
     await execCommand("vsnetrw.create");
-    assertLinesMatch(["../", "a/"]);
     let stat = await fs.stat("a/b/c");
     assert(stat.isFile());
   });

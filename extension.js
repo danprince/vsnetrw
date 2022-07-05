@@ -251,11 +251,11 @@ async function createFile() {
 
   if (newFileName.endsWith("/")) {
     await workspace.fs.createDirectory(uri)
+    refresh();
   } else {
     await workspace.fs.writeFile(uri, new Uint8Array());
+    await openFileInVscodeEditor(uri.fsPath);
   }
-
-  refresh();
 }
 
 /**
