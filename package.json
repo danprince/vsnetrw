@@ -49,11 +49,6 @@
         "when": "!activeEditor"
       },
       {
-        "command": "vsnetrw.open",
-        "key": "-",
-        "when": "editorTextFocus && editorLangId != vsnetrw && vim.mode == 'Normal'"
-      },
-      {
         "command": "vsnetrw.openAtCursor",
         "key": "enter",
         "when": "editorTextFocus && editorLangId == vsnetrw && vim.mode =~ /^(?!SearchInProgressMode|CommandlineInProgress).*$/"

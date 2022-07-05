@@ -297,6 +297,8 @@ function getInitialDir() {
  * Opens a new explorer editor.
  */
 async function openNewExplorer(dir = getInitialDir()) {
+  // For some reason vim.normalModeKeyBindings pass an empty array
+  if (Array.isArray(dir)) dir = getInitialDir();
   await openExplorer(dir);
 }
 

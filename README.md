@@ -4,7 +4,7 @@ A [split file explorer][oil-and-vinegar] for vscode, inspired by [netrw][netrw],
 <img width="782" height="594" src="https://user-images.githubusercontent.com/1266011/177040651-16aa09d1-ac0e-433c-9c25-3699bd5cd7d2.gif" />
 
 ## Shortcuts
-Press <kbd>-</kbd> (`vsnetrw.open`) to open a file explorer at the parent directory of the currently active text editor. Once open the following shortcuts are available.
+Use `vsnetrw.open` to open a file explorer at the parent directory of the currently active text editor. Once open the following shortcuts are available.
 
 | Default Shortcut | Command | Description |
 | ---------------- | ------- | ----------- |
@@ -19,6 +19,18 @@ Press <kbd>-</kbd> (`vsnetrw.open`) to open a file explorer at the parent direct
 
 ## Install
 Download a VSIX from [releases](https://github.com/danprince/vsnetrw/releases) and install it by running `>Extensions: Install from VSIX`.
+
+To make `-` open an explorer from any file (like `vim-vinegar`) add the following binding to your `vim.normalModeKeyBindings`.
+
+```json
+{
+  "before": ["-"],
+  "commands": ["vsnetrw.open"],
+  "when": "editorLangId != vsnetrw"
+}
+```
+
+This binding can't be provided as part of the extension because native VSCode's keybindings will accidentally trigger in undesirable instances (e.g. pressing `r-` in normal mode).
 
 [netrw]: https://www.vim.org/scripts/script.php?script_id=1075
 [vinegar]: https://github.com/tpope/vim-vinegar
