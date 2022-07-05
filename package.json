@@ -2,7 +2,7 @@
   "name": "vsnetrw",
   "version": "0.0.3",
   "description": "A vscode split explorer for files",
-  "publisher": "Dan Prince",
+  "publisher": "danprince",
   "icon": "icon.png",
   "keywords": [
     "netrw",
