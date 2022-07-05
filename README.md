@@ -1,7 +1,7 @@
 # vsnetrw
 A [split file explorer][oil-and-vinegar] for vscode, inspired by [netrw][netrw], [vim-vinegar][vinegar], [dired][dired], and [vim-dirvish][dirvish].
 
-<img width="782" height="594" src="https://user-images.githubusercontent.com/1266011/177040651-16aa09d1-ac0e-433c-9c25-3699bd5cd7d2.gif" />
+<img width="782" src="https://user-images.githubusercontent.com/1266011/177040651-16aa09d1-ac0e-433c-9c25-3699bd5cd7d2.gif" />
 
 ## Shortcuts
 Use `vsnetrw.open` to open a file explorer at the parent directory of the currently active text editor. Once open the following shortcuts are available.
