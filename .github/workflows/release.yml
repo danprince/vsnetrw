@@ -7,9 +7,11 @@ on:
 
 jobs:
   test:
+    name: Test
     uses: ./.github/workflows/test.yml
   build:
-    name: Create Release
+    name: Build
+    needs: test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
