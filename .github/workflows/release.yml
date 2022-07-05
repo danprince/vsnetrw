@@ -6,6 +6,8 @@ on:
       - 'v*'
 
 jobs:
+  test:
+    uses: ./.github/workflows/test.yml
   build:
     name: Create Release
     runs-on: ubuntu-latest
@@ -17,5 +19,4 @@ jobs:
       - uses: ncipollo/release-action@v1
         with:
           artifacts: "*.vsix"
-          body: ${{ github.event.head_commit.message }}
           token: ${{ secrets.GITHUB_TOKEN }}
