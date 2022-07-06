@@ -1,6 +1,6 @@
 {
   "name": "vsnetrw",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A vscode split explorer for files",
   "publisher": "danprince",
   "icon": "icon.png",
