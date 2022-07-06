@@ -135,6 +135,7 @@ async function openExplorer(dirName) {
   let doc = await workspace.openTextDocument(uri);
   await window.showTextDocument(doc, { preview: true });
   restoreSelections();
+  refresh();
 }
 
 /**
