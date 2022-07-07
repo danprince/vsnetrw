@@ -96,7 +96,7 @@ describe("navigation", () => {
     await execCommand("vsnetrw.openHome");
     let editor = vscode.window.activeTextEditor;
     assert(editor);
-    assert(editor.document.uri.query, os.homedir());
+    assert(editor.document.uri.path, os.homedir());
   });
 
   test("no parent dir at the filesystem root", async () => {

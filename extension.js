@@ -1,7 +1,7 @@
 let assert = require("node:assert");
 let path = require("node:path");
 let { homedir } = require("node:os");
-let { window, workspace, commands, Uri, EventEmitter, FileType, Selection, languages, Range, Position, DocumentHighlight, DocumentHighlightKind, Diagnostic, DiagnosticSeverity, DiagnosticRelatedInformation, Location } = require("vscode");
+let { window, workspace, commands, Uri, EventEmitter, FileType, Selection, languages, Range, Diagnostic, DiagnosticRelatedInformation, Location } = require("vscode");
 
 /**
  * The scheme is used to associate vsnetrw documents with the text content provider
@@ -10,10 +10,9 @@ let { window, workspace, commands, Uri, EventEmitter, FileType, Selection, langu
 const scheme = "vsnetrw";
 
 /**
- * The filename is used in the URI to recognise vsnetrw documents and apply
- * the vsnetrw language editor id and syntax highlighting.
+ * The editorLanguageId used to identify vsnetrw buffers.
  */
-const defaultFileName = "vsnetrw";
+const languageId = "vsnetrw";
 
 /**
  * Creates a vsnetrw document uri for a given path.
@@ -22,7 +21,7 @@ const defaultFileName = "vsnetrw";
  * @returns {Uri} The path as a Uri
  */
 function createUri(dirName) {
-  return Uri.from({ scheme, path: defaultFileName, query: dirName });
+  return Uri.from({ scheme, path: dirName });
 }
 
 /**
@@ -32,7 +31,7 @@ function createUri(dirName) {
 function getCurrentDir() {
   let editor = window.activeTextEditor;
   assert(editor && editor.document.uri.scheme === scheme, "Not a vsnetrw editor");
-  return editor.document.uri.query;
+  return editor.document.uri.path;
 }
 
 /**
@@ -70,7 +69,7 @@ function confirm(prompt) {
       }
     });
 
-    let onHide = inputBox.onDidHide(text => {
+    let onHide = inputBox.onDidHide(() => {
       inputBox.dispose();
       onChange.dispose();
       onHide.dispose();
@@ -134,6 +133,7 @@ async function openExplorer(dirName) {
   let uri = createUri(dirName);
   let doc = await workspace.openTextDocument(uri);
   await window.showTextDocument(doc, { preview: true });
+  await languages.setTextDocumentLanguage(doc, languageId);
   restoreSelections();
   refreshDiagnostics();
   refresh();
@@ -331,7 +331,7 @@ async function openFileUnderCursor() {
 async function openParentDirectory() {
   let editor = window.activeTextEditor;
   assert(editor, "No active editor");
-  let pathName = editor.document.uri.query;
+  let pathName = editor.document.uri.path;
   let parentPath = path.dirname(pathName);
   openExplorer(parentPath);
 }
@@ -364,7 +364,7 @@ async function openHomeDirectory() {
  * @returns {Promise<string>}
  */
 async function provideTextDocumentContent(documentUri) {
-  let pathName = documentUri.query;
+  let pathName = documentUri.path;
   let pathUri = Uri.file(pathName);
   let results = await workspace.fs.readDirectory(pathUri);
 
