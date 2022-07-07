@@ -1,7 +1,7 @@
 let assert = require("node:assert");
 let path = require("node:path");
 let { homedir } = require("node:os");
-let { window, workspace, commands, Uri, EventEmitter, FileType, Selection } = require("vscode");
+let { window, workspace, commands, Uri, EventEmitter, FileType, Selection, languages, Range, Position, DocumentHighlight, DocumentHighlightKind, Diagnostic, DiagnosticSeverity, DiagnosticRelatedInformation, Location } = require("vscode");
 
 /**
  * The scheme is used to associate vsnetrw documents with the text content provider
@@ -135,6 +135,7 @@ async function openExplorer(dirName) {
   let doc = await workspace.openTextDocument(uri);
   await window.showTextDocument(doc, { preview: true });
   restoreSelections();
+  refreshDiagnostics();
   refresh();
 }
 
@@ -390,6 +391,49 @@ let contentProvider = {
   onDidChange: uriChangeEmitter.event,
   provideTextDocumentContent,
 };
+
+let diagnostics = languages.createDiagnosticCollection("vsnetrw");
+
+/**
+ * Propagate diagnostics in files up to the explorer.
+ */
+function refreshDiagnostics() {
+  assert(window.activeTextEditor);
+
+  let document = window.activeTextEditor.document;
+  let base = getCurrentDir();
+
+  let uris = document.getText().split("\n").map(name => {
+    let pathToFile = path.join(base, name);
+    return Uri.file(pathToFile);
+  })
+
+  let ownDiagnostics = uris.flatMap((uri, line) => {
+    let childDiagnostics = languages.getDiagnostics(uri);
+    if (childDiagnostics.length === 0) return [];
+
+    let severities = childDiagnostics.map(diagnostic => diagnostic.severity);
+    let severity = Math.min(...severities);
+    let name = path.basename(uri.fsPath);
+    let range = new Range(line, 0, line, name.length);
+
+    let diagnostic = new Diagnostic(
+      range, `${childDiagnostics.length} problems in this file`,
+      severity
+    );
+
+    diagnostic.relatedInformation = childDiagnostics.map(childDiagnostic => {
+      return new DiagnosticRelatedInformation(
+        new Location(uri, childDiagnostic.range),
+        childDiagnostic.message
+      );
+    });
+
+    return diagnostic;
+  });
+
+  diagnostics.set(document.uri, ownDiagnostics);
+}
 
 /**
  * @param {import("vscode").ExtensionContext} context
