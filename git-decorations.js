@@ -59,7 +59,7 @@ function updateDecorations() {
   let lines = document.getText().split("\n");
 
   /**
-   * @type {Record<number, number[]}
+   * @type {Record<number, number[]>}
    */
   let linesByStatus = {};
 
