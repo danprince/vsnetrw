@@ -1,7 +1,8 @@
 let assert = require("node:assert");
 let path = require("node:path");
 let { homedir } = require("node:os");
-let { window, workspace, commands, Uri, EventEmitter, FileType, Selection, languages, Range, Diagnostic, DiagnosticRelatedInformation, Location } = require("vscode");
+let { window, workspace, commands, Uri, EventEmitter, FileType, Selection, languages, Range, Diagnostic, DiagnosticRelatedInformation, Location, extensions, ThemeColor } = require("vscode");
+let gitDecorations = require("./git-decorations");
 
 /**
  * The scheme is used to associate vsnetrw documents with the text content provider
@@ -120,6 +121,7 @@ async function openExplorer(dirName) {
   await languages.setTextDocumentLanguage(doc, languageId);
   moveCursorToPreviousFile();
   refreshDiagnostics();
+  gitDecorations.updateDecorations();
   refresh();
 }
 
@@ -414,14 +416,6 @@ async function provideTextDocumentContent(documentUri) {
   return listings.join("\n");
 }
 
-/**
- * @type {import("vscode").TextDocumentContentProvider}
- */
-let contentProvider = {
-  onDidChange: uriChangeEmitter.event,
-  provideTextDocumentContent,
-};
-
 let diagnostics = languages.createDiagnosticCollection("vsnetrw");
 
 /**
@@ -445,10 +439,10 @@ function refreshDiagnostics() {
     let severities = childDiagnostics.map(diagnostic => diagnostic.severity);
     let severity = Math.min(...severities);
     let name = path.basename(uri.fsPath);
-    let range = new Range(line, 0, line, name.length);
 
     let diagnostic = new Diagnostic(
-      range, `${childDiagnostics.length} problems in this file`,
+      new Range(line, 0, line, name.length),
+      `${childDiagnostics.length} problems in this file`,
       severity
     );
 
@@ -464,6 +458,14 @@ function refreshDiagnostics() {
 
   diagnostics.set(document.uri, ownDiagnostics);
 }
+
+/**
+ * @type {import("vscode").TextDocumentContentProvider}
+ */
+let contentProvider = {
+  onDidChange: uriChangeEmitter.event,
+  provideTextDocumentContent,
+};
 
 /**
  * @param {import("vscode").ExtensionContext} context
