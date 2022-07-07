@@ -49,10 +49,10 @@ function updateDecorations() {
   assert(window.activeTextEditor);
 
   let repo = git.repositories[0];
-  let changes = [
+  let changes = repo ? [
     ...repo.state.indexChanges,
     ...repo.state.workingTreeChanges,
-  ];
+  ] : [];
 
   let document = window.activeTextEditor.document;
   let base = document.uri.path;
