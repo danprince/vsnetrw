@@ -236,6 +236,27 @@ describe("renaming", () => {
     assert(await fileExists("a.txt"));
     assert(await fileExists("b.txt"));
   });
+
+  test("implicit directory renaming", async () => {
+    await createTempWorkspace(["a.txt", "b/"]);
+    await openExplorer();
+    await moveToLine("a.txt");
+    mockInputBox("b");
+    await execCommand("vsnetrw.rename");
+    assertLinesMatch(["../", "b/"]);
+    assert(!await fileExists("a.txt"));
+    assert(await fileExists("b/a.txt"));
+  });
+
+  test("implicit renaming does not overwrite directories", async () => {
+    await createTempWorkspace(["a.txt", "b/a.txt/c.txt"]);
+    await openExplorer();
+    await moveToLine("a.txt");
+    mockInputBox("b");
+    await execCommand("vsnetrw.rename");
+    assertLinesMatch(["../", "b/", "a.txt"]);
+    assert(await fileExists("a.txt"));
+  });
 });
 
 describe("creating", () => {

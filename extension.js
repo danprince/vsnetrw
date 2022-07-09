@@ -139,6 +139,21 @@ async function doesFileExist(file) {
 }
 
 /**
+ * Checks whether a file exists.
+ * @param {string} file
+ * @returns {Promise<FileType | undefined>}
+ */
+async function getFileType(file) {
+  let uri = Uri.file(file);
+  try {
+    let stat = await workspace.fs.stat(uri);
+    return stat.type;
+  } catch (err) {
+    return undefined;
+  }
+}
+
+/**
  * Returns the name of the file under the cursor in the current vsnetrw
  * document.
  * @returns {string}
@@ -192,20 +207,29 @@ async function renameFileUnderCursor() {
 
   if (!newName) return;
 
-  let currentPath = path.join(base, file);
-  let newPath = path.join(base, newName);
-  let willOverwrite = await doesFileExist(newPath);
+  let srcPath = path.join(base, file);
+  let dstPath = path.join(base, newName);
+  let dstFileType = await getFileType(dstPath);
 
-  if (willOverwrite) {
+  // Treat renames like "a.txt -> ../" as "a.txt -> ../a.txt"
+  if (dstFileType === FileType.Directory) {
+    dstPath = path.join(dstPath, file);
+    dstFileType = await getFileType(dstPath);
+  }
+
+  if (dstFileType === FileType.Directory) {
+    window.showErrorMessage(`Can't replace directory: ${dstPath}`);
+    return;
+  }
+
+  if (dstFileType != undefined) {
     let ok = await confirm("Overwrite existing file?");
     if (!ok) return;
   }
 
-  let currentUri = Uri.file(currentPath);
-  let newUri = Uri.file(newPath);
-
-  await workspace.fs.rename(currentUri, newUri, { overwrite: true });
-
+  let srcUri = Uri.file(srcPath);
+  let dstUri = Uri.file(dstPath);
+  await workspace.fs.rename(srcUri, dstUri, { overwrite: true });
   refresh();
 }
 
