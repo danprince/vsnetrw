@@ -151,6 +151,21 @@ function getLineUnderCursor() {
 }
 
 /**
+ * Returns all lines in the active selection.
+ * @returns {string[]}
+ */
+function getLinesUnderCursor() {
+  let editor = window.activeTextEditor;
+  assert(editor, "No active editor");
+  let lines = [];
+  for (let i = editor.selection.start.line; i <= editor.selection.end.line; i++) {
+    let line = editor.document.lineAt(i);
+    lines.push(line.text);
+  }
+  return lines;
+}
+
+/**
  * Opens a file in a vscode editor.
  * @param {string} fileName
  */
@@ -198,18 +213,26 @@ async function renameFileUnderCursor() {
  * Attempt to delete the file that is under the cursor in a vsnetrw document.
  */
 async function deleteFileUnderCursor() {
-  let file = getLineUnderCursor();
+  let files = getLinesUnderCursor();
   let base = getCurrentDir();
-  let pathToFile = path.join(base, file);
 
   // Never allow the user to accidentally delete the parent dir
-  if (file == "../") return;
+  files = files.filter(file => file !== "../");
 
-  let ok = await confirm(`Confirm deletion of ${file}`);
+  let ok = await confirm(
+    files.length === 1
+      ? `Confirm deletion of ${files[0]}`
+      : `Confirm deletion of ${files.length} files`
+  );
+
   if (!ok) return;
 
-  let uri = Uri.file(pathToFile);
-  await workspace.fs.delete(uri, { recursive: true, useTrash: true });
+  for (let file of files) {
+    let pathToFile = path.join(base, file);
+    let uri = Uri.file(pathToFile);
+    await workspace.fs.delete(uri, { recursive: true, useTrash: true });
+  }
+
   refresh();
 }
 

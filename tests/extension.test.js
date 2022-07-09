@@ -153,6 +153,20 @@ describe("deleting", () => {
     let exists = await fileExists(file);
     assert(exists);
   });
+
+  test("deleting multiple files", async () => {
+    let dir = await createTempWorkspace(["a/a.txt", "b.txt", "c.txt"]);
+    await openExplorer(dir);
+    let editor = vscode.window.activeTextEditor;
+    assert(editor, "No active text editor");
+    editor.selections = [new vscode.Selection(0, 0, 2, 5)];
+    mockInputBox("y");
+    await execCommand("vsnetrw.delete");
+    let text = getActiveEditorText();
+    assert.equal(text, ["../", "c.txt"].join("\n"));
+    assert(!await fileExists(path.join(dir, "a/a.txt")));
+    assert(!await fileExists(path.join(dir, "b.txt")));
+  });
 });
 
 describe("renaming", () => {
