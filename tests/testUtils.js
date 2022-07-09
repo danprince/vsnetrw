@@ -131,6 +131,18 @@ async function execCommand(command, ...args) {
   await sleep(100);
 }
 
+/**
+ * Gets the line of text under the cursor.
+ * Throws if there is no active editor or the current selection is multi-line.
+ * @returns {string}
+ */
+function getLineUnderCursor() {
+  let editor = vscode.window.activeTextEditor;
+  assert(editor, "No active text editor");
+  assert(editor.selection.isSingleLine, "Expected single line selection");
+  return editor.document.lineAt(editor.selection.active).text;
+}
+
 module.exports =  {
   sleep,
   fileExists,
@@ -142,4 +154,5 @@ module.exports =  {
   getActiveEditorText,
   mockInputBox,
   resetWidgetMocks,
+  getLineUnderCursor,
 };

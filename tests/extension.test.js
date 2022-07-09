@@ -15,6 +15,7 @@ let {
   mockInputBox,
   assertLinesMatch,
   execCommand,
+  getLineUnderCursor,
 } = require("./testUtils");
 
 /**
@@ -275,5 +276,23 @@ describe("creating", () => {
     await execCommand("vsnetrw.create");
     let contents = await fs.readFile("a.txt");
     assert.equal(contents, "a.txt");
+  });
+});
+
+describe("restores cursor", () => {
+  test("opens explorer with cursor on previous file", async () => {
+    let dir = await createTempWorkspace(["a.txt", "b.txt"]);
+    let uri = vscode.Uri.file(path.join(dir, "b.txt"));
+    await execCommand("vscode.open", uri);
+    await execCommand("vsnetrw.open");
+    assert.equal(getLineUnderCursor(), "b.txt");
+  });
+
+  test("cursor is restored when moving between explorers", async () => {
+    let dir = await createTempWorkspace(["a/a.txt", "b.txt"]);
+    let dirA = path.join(dir, "a");
+    await execCommand("vsnetrw.open", dirA);
+    await execCommand("vsnetrw.openParent");
+    assert.equal(getLineUnderCursor(), "a/");
   });
 });

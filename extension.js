@@ -15,6 +15,11 @@ const scheme = "vsnetrw";
 const languageId = "vsnetrw";
 
 /**
+ * The path to the file that was open before the current explorer.
+ */
+let previousFilePath = "";
+
+/**
  * Creates a vsnetrw document uri for a given path.
  *
  * @param {string} dirName The directory to open
@@ -82,45 +87,19 @@ function confirm(prompt) {
   });
 }
 
-/**
- * Check whether the active editor is an explorer.
- * @param {import("vscode").TextEditor | undefined} editor
- * @returns {editor is import("vscode").TextEditor}
- */
-function isExplorer(editor) {
-  return editor?.document.uri.scheme === scheme;
-}
-
-/**
- * A map from directory paths to selections, so that cursor positions can be
- * preserved when jumping between directories.
- *
- * @type {Map<string, readonly Selection[]>}
- */
-let selectionsMemoryMap = new Map();
-
-/**
- * Attempt to save the cursor position in the active explorer.
- */
-function saveSelections() {
+function moveCursorToPreviousFile() {
   let editor = window.activeTextEditor;
+  if (!editor) return;
+  let dir = getCurrentDir();
+  let files = editor.document.getText().split("\n");
 
-  if (isExplorer(editor)) {
-    let key = getCurrentDir();
-    selectionsMemoryMap.set(key, editor.selections);
-  }
-}
+  let index = files.findIndex(file => (
+    path.join(dir, file) === previousFilePath ||
+    path.join(dir, file) === `${previousFilePath}/`
+  ));
 
-/**
- * Attempt to restore the cursor position in the active explorer.
- */
-function restoreSelections() {
-  let editor = window.activeTextEditor;
-
-  if (isExplorer(editor)) {
-    let key = getCurrentDir();
-    let selections = selectionsMemoryMap.get(key);
-    if (selections) editor.selections = selections;
+  if (index >= 0) {
+    editor.selections = [new Selection(index, 0, index, 0)];
   }
 }
 
@@ -129,12 +108,17 @@ function restoreSelections() {
  * @param {string} dirName
  */
 async function openExplorer(dirName) {
-  saveSelections();
+  let editor = window.activeTextEditor;
+
+  if (editor) {
+    previousFilePath = editor.document.uri.fsPath;
+  }
+
   let uri = createUri(dirName);
   let doc = await workspace.openTextDocument(uri);
   await window.showTextDocument(doc, { preview: true });
   await languages.setTextDocumentLanguage(doc, languageId);
-  restoreSelections();
+  moveCursorToPreviousFile();
   refreshDiagnostics();
   refresh();
 }
@@ -172,7 +156,6 @@ function getLineUnderCursor() {
  */
 async function openFileInVscodeEditor(fileName) {
   let uri = Uri.file(fileName);
-  saveSelections();
   await commands.executeCommand("vscode.open", uri);
 }
 
