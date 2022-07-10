@@ -51,6 +51,7 @@ function refresh() {
   let dir = getCurrentDir();
   let uri = createUri(dir);
   uriChangeEmitter.fire(uri);
+  refreshDiagnostics();
 }
 
 /**
@@ -119,7 +120,6 @@ async function openExplorer(dirName) {
   await window.showTextDocument(doc, { preview: true });
   await languages.setTextDocumentLanguage(doc, languageId);
   moveCursorToPreviousFile();
-  refreshDiagnostics();
   refresh();
 }
 
