@@ -1,117 +1,123 @@
 {
-  "name": "vsnetrw",
-  "version": "0.2.2",
-  "description": "A vscode split explorer for files",
-  "publisher": "danprince",
-  "icon": "icon.png",
-  "keywords": [
-    "netrw",
-    "vim",
-    "vim-vinegar",
-    "dired",
-    "explorer"
-  ],
-  "main": "extension.js",
-  "license": "Unlicense",
-  "repository": "danprince/vsnetrw",
-  "engines": {
-    "vscode": "^1.68.0"
-  },
-  "scripts": {
-    "test": "node tests/index.js",
-    "build": "tsc && vsce package",
-    "local-install": "yarn build && code --install-extension *.vsix"
-  },
-  "activationEvents": [
-    "onCommand:vsnetrw.open"
-  ],
-  "contributes": {
-    "languages": [
-      {
-        "id": "vsnetrw",
-        "filenames": [
-          "vsnetrw"
-        ],
-        "configuration": "./language-configuration.json"
-      }
-    ],
-    "commands": [
-      {
-        "command": "vsnetrw.open",
-        "title": "Open Explorer",
-        "category": "vsnetrw"
-      }
-    ],
-    "keybindings": [
-      {
-        "command": "vsnetrw.open",
-        "key": "-",
-        "when": "!activeEditor"
-      },
-      {
-        "command": "vsnetrw.openAtCursor",
-        "key": "enter",
-        "when": "editorTextFocus && editorLangId == vsnetrw && vim.mode =~ /^(?!SearchInProgressMode|CommandlineInProgress).*$/"
-      },
-      {
-        "command": "vsnetrw.openParent",
-        "key": "-",
-        "when": "editorTextFocus && editorLangId == vsnetrw && vim.mode =~ /^(?!SearchInProgressMode|CommandlineInProgress).*$/"
-      },
-      {
-        "command": "vsnetrw.openHome",
-        "key": "shift+`",
-        "when": "editorLangId == vsnetrw && vim.mode =~ /^(?!SearchInProgressMode|CommandlineInProgress).*$/"
-      },
-      {
-        "command": "vsnetrw.rename",
-        "key": "shift+r",
-        "when": "editorTextFocus && editorLangId == vsnetrw && vim.mode =~ /^(?!SearchInProgressMode|CommandlineInProgress).*$/"
-      },
-      {
-        "command": "vsnetrw.delete",
-        "key": "shift+d",
-        "when": "editorTextFocus && editorLangId == vsnetrw && vim.mode =~ /^(?!SearchInProgressMode|CommandlineInProgress).*$/"
-      },
-      {
-        "command": "vsnetrw.create",
-        "key": "shift+5",
-        "when": "editorTextFocus && editorLangId == vsnetrw && vim.mode =~ /^(?!SearchInProgressMode|CommandlineInProgress).*$/"
-      },
-      {
-        "command": "vsnetrw.createDir",
-        "key": "d",
-        "when": "editorTextFocus && editorLangId == vsnetrw && vim.mode =~ /^(?!SearchInProgressMode|CommandlineInProgress).*$/"
-      },
-      {
-        "command": "vsnetrw.refresh",
-        "key": "ctrl+l",
-        "when": "editorTextFocus && editorLangId == vsnetrw && vim.mode =~ /^(?!SearchInProgressMode|CommandlineInProgress).*$/"
-      }
-    ],
-    "grammars": [
-      {
-        "language": "vsnetrw",
-        "scopeName": "source.vsnetrw",
-        "path": "./vsnetrw.tmLanguage.json"
-      }
-    ],
-    "configurationDefaults": {
-      "[vsnetrw]": {
-        "editor.lineNumbers": "off",
-        "editor.minimap.enabled": false,
-        "editor.renderWhitespace": "none"
-      }
-    }
-  },
-  "devDependencies": {
-    "@types/mocha": "^9.1.1",
-    "@types/node": "^18.0.0",
-    "@types/vscode": "^1.68.1",
-    "@vscode/test-electron": "^2.1.5",
-    "fast-glob": "^3.2.11",
-    "mocha": "^10.0.0",
-    "typescript": "^4.7.4",
-    "vsce": "^2.9.2"
-  }
+	"name": "vsnetrw",
+	"version": "0.2.2",
+	"description": "A vscode split explorer for files",
+	"publisher": "danprince",
+	"icon": "icon.png",
+	"keywords": [
+		"netrw",
+		"vim",
+		"vim-vinegar",
+		"dired",
+		"explorer"
+	],
+	"main": "extension.js",
+	"license": "Unlicense",
+	"repository": "danprince/vsnetrw",
+	"engines": {
+		"vscode": "^1.68.0"
+	},
+	"scripts": {
+		"test": "node tests/index.js",
+		"build": "tsc && vsce package",
+		"local-install": "yarn build && code --install-extension *.vsix"
+	},
+	"activationEvents": [
+		"onCommand:vsnetrw.open"
+	],
+	"contributes": {
+		"languages": [
+			{
+				"id": "vsnetrw",
+				"filenames": [
+					"vsnetrw"
+				],
+				"configuration": "./language-configuration.json"
+			}
+		],
+		"commands": [
+			{
+				"command": "vsnetrw.open",
+				"title": "Open Explorer",
+				"category": "vsnetrw"
+			}
+		],
+		"keybindings": [
+			{
+				"command": "vsnetrw.open",
+				"key": "-",
+				"when": "!activeEditor"
+			},
+			{
+				"command": "vsnetrw.openAtCursor",
+				"key": "enter",
+				"when": "editorTextFocus && editorLangId == vsnetrw && vim.mode =~ /^(?!SearchInProgressMode|CommandlineInProgress).*$/"
+			},
+			{
+				"command": "vsnetrw.openParent",
+				"key": "-",
+				"when": "editorTextFocus && editorLangId == vsnetrw && vim.mode =~ /^(?!SearchInProgressMode|CommandlineInProgress).*$/"
+			},
+			{
+				"command": "vsnetrw.openHome",
+				"key": "shift+`",
+				"when": "editorLangId == vsnetrw && vim.mode =~ /^(?!SearchInProgressMode|CommandlineInProgress).*$/"
+			},
+			{
+				"command": "vsnetrw.rename",
+				"key": "shift+r",
+				"when": "editorTextFocus && editorLangId == vsnetrw && vim.mode =~ /^(?!SearchInProgressMode|CommandlineInProgress).*$/"
+			},
+			{
+				"command": "vsnetrw.delete",
+				"key": "shift+d",
+				"when": "editorTextFocus && editorLangId == vsnetrw && vim.mode =~ /^(?!SearchInProgressMode|CommandlineInProgress).*$/"
+			},
+			{
+				"command": "vsnetrw.create",
+				"key": "shift+5",
+				"when": "editorTextFocus && editorLangId == vsnetrw && vim.mode =~ /^(?!SearchInProgressMode|CommandlineInProgress).*$/"
+			},
+			{
+				"command": "vsnetrw.createDir",
+				"key": "d",
+				"when": "editorTextFocus && editorLangId == vsnetrw && vim.mode =~ /^(?!SearchInProgressMode|CommandlineInProgress).*$/"
+			},
+			{
+				"command": "vsnetrw.refresh",
+				"key": "ctrl+l",
+				"when": "editorTextFocus && editorLangId == vsnetrw && vim.mode =~ /^(?!SearchInProgressMode|CommandlineInProgress).*$/"
+			}
+		],
+		"grammars": [
+			{
+				"language": "vsnetrw",
+				"scopeName": "source.vsnetrw",
+				"path": "./vsnetrw.tmLanguage.json"
+			}
+		],
+		"configurationDefaults": {
+			"[vsnetrw]": {
+				"editor.lineNumbers": "off",
+				"editor.minimap.enabled": false,
+				"editor.renderWhitespace": "none"
+			}
+		}
+	},
+	"devDependencies": {
+		"@types/mocha": "^9.1.1",
+		"@types/node": "^18.0.0",
+		"@types/vscode": "^1.68.1",
+		"@vscode/test-electron": "^2.1.5",
+		"fast-glob": "^3.2.11",
+		"mocha": "^10.0.0",
+		"typescript": "^4.7.4",
+		"vsce": "^2.9.2"
+	},
+	"__metadata": {
+		"id": "668fbee7-65fc-4157-8c12-f76e3da227fd",
+		"publisherDisplayName": "Dan Prince",
+		"publisherId": "4c57e270-dfdc-4cc4-a9a8-3acfd4f15f5b",
+		"isPreReleaseVersion": false
+	}
 }
