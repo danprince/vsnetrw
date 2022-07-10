@@ -120,7 +120,6 @@ async function openExplorer(dirName) {
   await window.showTextDocument(doc, { preview: true });
   await languages.setTextDocumentLanguage(doc, languageId);
   moveCursorToPreviousFile();
-  refresh();
 }
 
 /**
@@ -466,11 +465,24 @@ function refreshDiagnostics() {
 }
 
 /**
+ * @param {import("vscode").TextEditor | undefined} editor
+ */
+function onChangeActiveTextEditor(editor) {
+  if (editor?.document.uri.scheme === scheme) {
+    refresh();
+  }
+}
+
+/**
  * @param {import("vscode").ExtensionContext} context
  */
 function activate(context) {
   context.subscriptions.push(
     workspace.registerTextDocumentContentProvider(scheme, contentProvider),
+  );
+
+  context.subscriptions.push(
+    window.onDidChangeActiveTextEditor(onChangeActiveTextEditor)
   );
 
   context.subscriptions.push(
