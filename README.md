@@ -18,10 +18,9 @@ Use `vsnetrw.open` to open a file explorer at the parent directory of the curren
 | <kbd>d</kbd> | `vsnetrw.createDir` | Create a new directory (and any intermediate ones). |
 | <kbd>D</kbd> | `vsnetrw.delete` | Delete the file or directory under the cursor. |
 | <kbd>ctrl+l</kbd> | `vsnetrw.refresh` | Refresh the directory listing. |
+| <kbd>esc</kbd> | `vsnetrw.close` | Close the active explorer. |
 
-## Install
-Download a VSIX from [releases](https://github.com/danprince/vsnetrw/releases) and install it by running `>Extensions: Install from VSIX`.
-
+## VSCodeVim Keybindings
 To make `-` open an explorer from any file (like `vim-vinegar`) add the following binding to your `vim.normalModeKeyBindings`.
 
 ```json
@@ -33,6 +32,11 @@ To make `-` open an explorer from any file (like `vim-vinegar`) add the followin
 ```
 
 This binding can't be provided as part of the extension because native VSCode's keybindings will accidentally trigger in undesirable instances (e.g. pressing `r-` in normal mode).
+
+## Installation
+vsnetrw can be installed from the [VSCode Marketplace](https://marketplace.visualstudio.com/items?itemName=danprince.vsnetrw).
+
+You can also download a VSIX from [releases](https://github.com/danprince/vsnetrw/releases) and install it by running `>Extensions: Install from VSIX`.
 
 [netrw]: https://www.vim.org/scripts/script.php?script_id=1075
 [vinegar]: https://github.com/tpope/vim-vinegar
