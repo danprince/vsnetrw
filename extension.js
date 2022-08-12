@@ -506,6 +506,7 @@ function activate(context) {
     commands.registerCommand("vsnetrw.create", createFile),
     commands.registerCommand("vsnetrw.createDir", createDir),
     commands.registerCommand("vsnetrw.refresh", refresh),
+    commands.registerCommand("vsnetrw.close", closeExplorer),
   );
 }
 
