@@ -185,7 +185,18 @@ function getLinesUnderCursor() {
  */
 async function openFileInVscodeEditor(fileName) {
   let uri = Uri.file(fileName);
+  await closeExplorer();
   await commands.executeCommand("vscode.open", uri);
+}
+
+/**
+ * Close the vsnetrw explorer if it is the active editor.
+ */
+async function closeExplorer() {
+  let editor = window.activeTextEditor;
+  if (editor?.document.uri.scheme === scheme) {
+    await commands.executeCommand("workbench.action.closeActiveEditor");
+  }
 }
 
 /**
