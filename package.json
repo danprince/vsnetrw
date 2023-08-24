@@ -92,6 +92,21 @@
 				"command": "vsnetrw.refresh",
 				"key": "ctrl+l",
 				"when": "editorTextFocus && editorLangId == vsnetrw && vim.mode =~ /^(?!SearchInProgressMode|CommandlineInProgress).*$/"
+			},
+			{
+				"command": "vsnetrw.createBookmark",
+				"key": "m",
+				"when": "editorTextFocus && editorLangId == vsnetrw && vim.mode =~ /^(?!SearchInProgressMode|CommandlineInProgress).*$/"
+			},
+			{
+				"command": "vsnetrw.openBookmarks",
+				"key": "'",
+				"when": "editorTextFocus && editorLangId == vsnetrw && vim.mode =~ /^(?!SearchInProgressMode|CommandlineInProgress).*$/"
+			},
+			{
+				"command": "vsnetrw.deleteBookmarks",
+				"key": "shift+m",
+				"when": "editorTextFocus && editorLangId == vsnetrw && vim.mode =~ /^(?!SearchInProgressMode|CommandlineInProgress).*$/"
 			}
 		],
 		"grammars": [

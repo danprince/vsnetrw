@@ -15,6 +15,11 @@ const scheme = "vsnetrw";
 const languageId = "vsnetrw";
 
 /**
+ * @type {import("vscode").Memento}
+ */
+let globalState;
+
+/**
  * The path to the file that was open before the current explorer.
  */
 let previousFilePath = "";
@@ -399,6 +404,96 @@ async function openHomeDirectory() {
 }
 
 /**
+ * @returns {Record<string, string>}
+ */
+function loadBookmarks() {
+  return globalState.get("bookmarks", {});
+}
+
+/**
+ * @param {Record<string, string>} bookmarks
+ */
+function saveBookmarks(bookmarks) {
+  globalState.update("bookmarks", bookmarks);
+}
+
+/**
+ * Save the current directory to the global bookmarks list prompting the user
+ * for the name of the register to save the bookmark into.
+ */
+async function createBookmark() {
+  let dir = getCurrentDir();
+
+  let input = await window.showInputBox({
+    prompt: "Save to register",
+    title: "Create Bookmark",
+  });
+
+  let bookmarks = loadBookmarks();
+
+  if (input) {
+    // TODO: Prompt if collision?
+    bookmarks[input] = dir;
+    saveBookmarks(bookmarks);
+  }
+}
+
+/**
+ * Create a list of quick pick items from the current set of bookmarks.
+ */
+function createBookmarkQuickPicks() {
+  let bookmarks = loadBookmarks();
+  let entries = Object.entries(bookmarks);
+  return entries.map(([register, path]) => {
+    return {
+      label: register,
+      description: path,
+      register,
+      path,
+    };
+  });
+}
+
+/**
+ * Open the quick picker for bookmarks.
+ */
+async function openBookmarks() {
+  let items = createBookmarkQuickPicks();
+
+  if (items.length === 0) {
+    return window.showWarningMessage(`📚 You don't have any bookmarks!`);
+  }
+
+  let picked = await window.showQuickPick(items, {
+    canPickMany: false,
+    placeHolder: `Jump to bookmark`,
+  });
+
+  if (picked) {
+    openExplorer(picked.path);
+  }
+}
+
+async function deleteBookmarks() {
+  let items = createBookmarkQuickPicks();
+
+  if (items.length === 0) {
+    return window.showWarningMessage(`📚 You don't have any bookmarks!`);
+  }
+
+  let picked = await window.showQuickPick(items, {
+    canPickMany: false,
+    placeHolder: `Delete bookmark`,
+  });
+
+  if (picked) {
+    let bookmarks = loadBookmarks();
+    delete bookmarks[picked.register];
+    saveBookmarks(bookmarks);
+  }
+}
+
+/**
  * Renders the text content for the current vsnetrw document.
  * @param {Uri} documentUri
  * @returns {Promise<string>}
@@ -488,6 +583,8 @@ function onChangeActiveTextEditor(editor) {
  * @param {import("vscode").ExtensionContext} context
  */
 function activate(context) {
+  globalState = context.globalState;
+
   context.subscriptions.push(
     workspace.registerTextDocumentContentProvider(scheme, contentProvider),
   );
@@ -507,6 +604,9 @@ function activate(context) {
     commands.registerCommand("vsnetrw.createDir", createDir),
     commands.registerCommand("vsnetrw.refresh", refresh),
     commands.registerCommand("vsnetrw.close", closeExplorer),
+    commands.registerCommand("vsnetrw.createBookmark", createBookmark),
+    commands.registerCommand("vsnetrw.openBookmarks", openBookmarks),
+    commands.registerCommand("vsnetrw.deleteBookmarks", deleteBookmarks),
   );
 }
 
