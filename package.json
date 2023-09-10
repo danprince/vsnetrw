@@ -79,6 +79,11 @@
 				"when": "editorTextFocus && editorLangId == vsnetrw && vim.mode =~ /^(?!SearchInProgressMode|CommandlineInProgress).*$/"
 			},
 			{
+				"command": "vsnetrw.delete",
+				"key": "delete",
+				"when": "editorTextFocus && editorLangId == vsnetrw && vim.mode =~ /^(?!SearchInProgressMode|CommandlineInProgress).*$/"
+			},
+			{
 				"command": "vsnetrw.create",
 				"key": "shift+5",
 				"when": "editorTextFocus && editorLangId == vsnetrw && vim.mode =~ /^(?!SearchInProgressMode|CommandlineInProgress).*$/"
