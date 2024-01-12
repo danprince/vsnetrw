@@ -1,7 +1,7 @@
 let assert = require("node:assert");
 let path = require("node:path");
 let { homedir } = require("node:os");
-let { window, workspace, commands, Uri, EventEmitter, FileType, Selection, languages, Range, Diagnostic, DiagnosticRelatedInformation, Location } = require("vscode");
+let { window, workspace, commands, Uri, EventEmitter, FileType, Selection, languages, Range, Diagnostic, DiagnosticRelatedInformation, Location, ViewColumn } = require("vscode");
 
 /**
  * The scheme is used to associate vsnetrw documents with the text content provider
@@ -183,10 +183,15 @@ function getLinesUnderCursor() {
  * Opens a file in a vscode editor.
  * @param {string} fileName
  */
-async function openFileInVscodeEditor(fileName) {
+async function openFileInVscodeEditor(fileName, horizontalSplit = false) {
   let uri = Uri.file(fileName);
   await closeExplorer();
-  await commands.executeCommand("vscode.open", uri);
+
+  if (horizontalSplit) {
+    await commands.executeCommand("vscode.open", uri, ViewColumn.Beside);
+  } else {
+    await commands.executeCommand("vscode.open", uri);
+  }
 }
 
 /**
@@ -351,7 +356,7 @@ async function openNewExplorer(dir = getInitialDir()) {
  * editor. If there is a directory under the cursor, then it will open in a
  * new vsnetrw document.
  */
-async function openFileUnderCursor() {
+async function openFileUnderCursor(horizontalSplit = false) {
   let relativePath = getLineUnderCursor();
   let basePath = getCurrentDir();
   let newPath = path.resolve(basePath, relativePath);
@@ -361,8 +366,12 @@ async function openFileUnderCursor() {
   if (stat.type & FileType.Directory) {
     await openExplorer(newPath);
   } else {
-    await openFileInVscodeEditor(newPath);
+    await openFileInVscodeEditor(newPath, horizontalSplit);
   }
+}
+
+async function openFileUnderCursorHorizontalSplit() {
+  await openFileUnderCursor(true)
 }
 
 /**
@@ -499,6 +508,7 @@ function activate(context) {
   context.subscriptions.push(
     commands.registerCommand("vsnetrw.open", openNewExplorer),
     commands.registerCommand("vsnetrw.openAtCursor", openFileUnderCursor),
+    commands.registerCommand("vsnetrw.openAtCursorHorizontalSplit", openFileUnderCursorHorizontalSplit),
     commands.registerCommand("vsnetrw.openParent", openParentDirectory),
     commands.registerCommand("vsnetrw.openHome", openHomeDirectory),
     commands.registerCommand("vsnetrw.rename", renameFileUnderCursor),
