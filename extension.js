@@ -182,13 +182,14 @@ function getLinesUnderCursor() {
 /**
  * Opens a file in a vscode editor.
  * @param {string} fileName
+ * @param {ViewColumn} [viewColumn]
  */
-async function openFileInVscodeEditor(fileName, horizontalSplit = false) {
+async function openFileInVscodeEditor(fileName, viewColumn) {
   let uri = Uri.file(fileName);
   await closeExplorer();
 
-  if (horizontalSplit) {
-    await commands.executeCommand("vscode.open", uri, ViewColumn.Beside);
+  if (viewColumn) {
+    await commands.executeCommand("vscode.open", uri, viewColumn);
   } else {
     await commands.executeCommand("vscode.open", uri);
   }
@@ -351,12 +352,13 @@ async function openNewExplorer(dir = getInitialDir()) {
 
 /**
  * Attempt to open the file that is currently under the cursor.
- *
+ * 
  * If there is a file under the cursor, it will open in a vscode text
  * editor. If there is a directory under the cursor, then it will open in a
  * new vsnetrw document.
+ * @param {ViewColumn} [viewColumn]
  */
-async function openFileUnderCursor(horizontalSplit = false) {
+async function openFileUnderCursor(viewColumn) {
   let relativePath = getLineUnderCursor();
   let basePath = getCurrentDir();
   let newPath = path.resolve(basePath, relativePath);
@@ -366,12 +368,12 @@ async function openFileUnderCursor(horizontalSplit = false) {
   if (stat.type & FileType.Directory) {
     await openExplorer(newPath);
   } else {
-    await openFileInVscodeEditor(newPath, horizontalSplit);
+    await openFileInVscodeEditor(newPath, viewColumn);
   }
 }
 
 async function openFileUnderCursorHorizontalSplit() {
-  await openFileUnderCursor(true)
+  await openFileUnderCursor(ViewColumn.Beside)
 }
 
 /**
