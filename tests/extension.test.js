@@ -105,6 +105,20 @@ describe("navigation", () => {
     let text = getActiveEditorText();
     assert.doesNotMatch(text, /\.\.\//);
   });
+
+  test("open the a file in a horizontal split", async () => {
+    const dir = await createTempWorkspace(["a.txt", "b.txt"]);
+    await execCommand("vscode.open", vscode.Uri.file(path.join(dir, "a.txt")));
+    assert.equal(vscode.window.tabGroups.all.length, 1)
+    await openExplorer();
+    await moveToLine("b.txt");
+    await execCommand("vsnetrw.openAtCursorInHorizontalSplit");
+    assert.equal(vscode.window.tabGroups.all.length, 2)
+    assert.equal(
+      vscode.window.activeTextEditor?.document.fileName,
+      path.join(dir, "b.txt"),
+    );
+  });
 });
 
 describe("refresh", () => {

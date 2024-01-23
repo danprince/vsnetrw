@@ -372,7 +372,7 @@ async function openFileUnderCursor(viewColumn) {
   }
 }
 
-async function openFileUnderCursorHorizontalSplit() {
+async function openFileUnderCursorInHorizontalSplit() {
   await openFileUnderCursor(ViewColumn.Beside)
 }
 
@@ -510,7 +510,7 @@ function activate(context) {
   context.subscriptions.push(
     commands.registerCommand("vsnetrw.open", openNewExplorer),
     commands.registerCommand("vsnetrw.openAtCursor", openFileUnderCursor),
-    commands.registerCommand("vsnetrw.openAtCursorHorizontalSplit", openFileUnderCursorHorizontalSplit),
+    commands.registerCommand("vsnetrw.openAtCursorInHorizontalSplit", openFileUnderCursorInHorizontalSplit),
     commands.registerCommand("vsnetrw.openParent", openParentDirectory),
     commands.registerCommand("vsnetrw.openHome", openHomeDirectory),
     commands.registerCommand("vsnetrw.rename", renameFileUnderCursor),
