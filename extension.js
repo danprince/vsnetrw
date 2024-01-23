@@ -373,7 +373,19 @@ async function openFileUnderCursor(viewColumn) {
 }
 
 async function openFileUnderCursorInHorizontalSplit() {
-  await openFileUnderCursor(ViewColumn.Beside)
+  await openFileUnderCursor(ViewColumn.Beside);
+}
+
+async function openFileUnderCursorInVerticalSplit() {
+  await openFileUnderCursor(ViewColumn.Beside);
+  // saving the reference
+  // toggling the editor layout (vertical split) will make the editor lose focus
+  const lastActiveEditor = window.activeTextEditor;
+  await commands.executeCommand("workbench.action.toggleEditorGroupLayout");
+  if (lastActiveEditor) {
+    // focus the editor again
+    await window.showTextDocument(lastActiveEditor.document);
+  }
 }
 
 /**
@@ -511,6 +523,7 @@ function activate(context) {
     commands.registerCommand("vsnetrw.open", openNewExplorer),
     commands.registerCommand("vsnetrw.openAtCursor", openFileUnderCursor),
     commands.registerCommand("vsnetrw.openAtCursorInHorizontalSplit", openFileUnderCursorInHorizontalSplit),
+    commands.registerCommand("vsnetrw.openAtCursorInVerticalSplit", openFileUnderCursorInVerticalSplit),
     commands.registerCommand("vsnetrw.openParent", openParentDirectory),
     commands.registerCommand("vsnetrw.openHome", openHomeDirectory),
     commands.registerCommand("vsnetrw.rename", renameFileUnderCursor),
