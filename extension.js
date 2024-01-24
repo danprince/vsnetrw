@@ -2,6 +2,7 @@ let assert = require("node:assert");
 let path = require("node:path");
 let { homedir } = require("node:os");
 let { window, workspace, commands, Uri, EventEmitter, FileType, Selection, languages, Range, Diagnostic, DiagnosticRelatedInformation, Location } = require("vscode");
+const { renderListing, iconsEnabled } = require("./icons");
 
 /**
  * The scheme is used to associate vsnetrw documents with the text content provider
@@ -161,6 +162,12 @@ function getLineUnderCursor() {
   let editor = window.activeTextEditor;
   assert(editor, "No active editor");
   let line = editor.document.lineAt(editor.selection.active);
+
+  if (iconsEnabled()) {
+    // remove icon from line
+    return line.text.substring(2)
+  }
+
   return line.text;
 }
 
@@ -415,7 +422,7 @@ async function provideTextDocumentContent(documentUri) {
   });
 
   let listings = results.map(([name, type]) => {
-    return type & FileType.Directory ? `${name}/` : name;
+    return renderListing(name, Boolean(type & FileType.Directory));
   });
 
   let hasParent = path.dirname(pathName) !== pathName;

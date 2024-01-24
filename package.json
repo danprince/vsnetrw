@@ -112,7 +112,19 @@
 				"editor.minimap.enabled": false,
 				"editor.renderWhitespace": "none"
 			}
-		}
+		},
+    "configuration": [
+      {
+        "title": "vsnetrw",
+        "properties": {
+          "vsnetrw.useNerdFontIcons": {
+            "type": "boolean",
+            "default": false,
+            "description": "Enable Nerd Font icons for files and directories. You should set a Nerd Font as the Font Family in VS Code"
+          }
+        }
+      }
+    ]
 	},
 	"devDependencies": {
 		"@types/mocha": "^9.1.1",
