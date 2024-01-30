@@ -1,7 +1,7 @@
 let assert = require("node:assert");
 let path = require("node:path");
 let { homedir } = require("node:os");
-let { window, workspace, commands, Uri, EventEmitter, FileType, Selection, languages, Range, Diagnostic, DiagnosticRelatedInformation, Location } = require("vscode");
+let { window, workspace, commands, Uri, EventEmitter, FileType, Selection, languages, Range, Diagnostic, DiagnosticRelatedInformation, Location, ViewColumn } = require("vscode");
 
 /**
  * The scheme is used to associate vsnetrw documents with the text content provider
@@ -182,11 +182,17 @@ function getLinesUnderCursor() {
 /**
  * Opens a file in a vscode editor.
  * @param {string} fileName
+ * @param {ViewColumn} [viewColumn]
  */
-async function openFileInVscodeEditor(fileName) {
+async function openFileInVscodeEditor(fileName, viewColumn) {
   let uri = Uri.file(fileName);
   await closeExplorer();
-  await commands.executeCommand("vscode.open", uri);
+
+  if (viewColumn) {
+    await commands.executeCommand("vscode.open", uri, viewColumn);
+  } else {
+    await commands.executeCommand("vscode.open", uri);
+  }
 }
 
 /**
@@ -346,12 +352,13 @@ async function openNewExplorer(dir = getInitialDir()) {
 
 /**
  * Attempt to open the file that is currently under the cursor.
- *
+ * 
  * If there is a file under the cursor, it will open in a vscode text
  * editor. If there is a directory under the cursor, then it will open in a
  * new vsnetrw document.
+ * @param {ViewColumn} [viewColumn]
  */
-async function openFileUnderCursor() {
+async function openFileUnderCursor(viewColumn) {
   let relativePath = getLineUnderCursor();
   let basePath = getCurrentDir();
   let newPath = path.resolve(basePath, relativePath);
@@ -361,7 +368,23 @@ async function openFileUnderCursor() {
   if (stat.type & FileType.Directory) {
     await openExplorer(newPath);
   } else {
-    await openFileInVscodeEditor(newPath);
+    await openFileInVscodeEditor(newPath, viewColumn);
+  }
+}
+
+async function openFileUnderCursorInHorizontalSplit() {
+  await openFileUnderCursor(ViewColumn.Beside);
+}
+
+async function openFileUnderCursorInVerticalSplit() {
+  await openFileUnderCursor(ViewColumn.Beside);
+  // saving the reference
+  // toggling the editor layout (vertical split) will make the editor lose focus
+  const lastActiveEditor = window.activeTextEditor;
+  await commands.executeCommand("workbench.action.toggleEditorGroupLayout");
+  if (lastActiveEditor) {
+    // focus the editor again
+    await window.showTextDocument(lastActiveEditor.document);
   }
 }
 
@@ -499,6 +522,8 @@ function activate(context) {
   context.subscriptions.push(
     commands.registerCommand("vsnetrw.open", openNewExplorer),
     commands.registerCommand("vsnetrw.openAtCursor", openFileUnderCursor),
+    commands.registerCommand("vsnetrw.openAtCursorInHorizontalSplit", openFileUnderCursorInHorizontalSplit),
+    commands.registerCommand("vsnetrw.openAtCursorInVerticalSplit", openFileUnderCursorInVerticalSplit),
     commands.registerCommand("vsnetrw.openParent", openParentDirectory),
     commands.registerCommand("vsnetrw.openHome", openHomeDirectory),
     commands.registerCommand("vsnetrw.rename", renameFileUnderCursor),
