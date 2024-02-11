@@ -14,6 +14,7 @@ Use `vsnetrw.open` to open a file explorer at the parent directory of the curren
 | <kbd>-</kbd> | `vsnetrw.openParent` | Jump to the parent directory |
 | <kbd>~</kbd> | `vsnetrw.openHome` | Jump to the root of the current workspace folder, or user's homedir. |
 | <kbd>R</kbd> | `vsnetrw.rename` | Rename the file or directory under the cursor |
+| <kbd>Y</kbd> | `vsnetrw.duplicate` | Duplicate the file or directory under the cursor |
 | <kbd>%</kbd> | `vsnetrw.create` | Create a new file or directory (and any intermediate directories). |
 | <kbd>d</kbd> | `vsnetrw.createDir` | Create a new directory (and any intermediate ones). |
 | <kbd>D</kbd> | `vsnetrw.delete` | Delete the file or directory under the cursor. |

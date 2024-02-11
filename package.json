@@ -74,6 +74,11 @@
 				"when": "editorTextFocus && editorLangId == vsnetrw && vim.mode =~ /^(?!SearchInProgressMode|CommandlineInProgress).*$/"
 			},
 			{
+				"command": "vsnetrw.duplicate",
+				"key": "shift+y",
+				"when": "editorTextFocus && editorLangId == vsnetrw && vim.mode =~ /^(?!SearchInProgressMode|CommandlineInProgress).*$/"
+			},
+			{
 				"command": "vsnetrw.delete",
 				"key": "shift+d",
 				"when": "editorTextFocus && editorLangId == vsnetrw && vim.mode =~ /^(?!SearchInProgressMode|CommandlineInProgress).*$/"
