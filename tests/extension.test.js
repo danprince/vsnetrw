@@ -276,6 +276,97 @@ describe("renaming", () => {
   });
 });
 
+describe("duplicate", () => {
+  test("duplicate a file", async () => {
+    await createTempWorkspace(["a.txt"]);
+    await openExplorer();
+    await moveToLine("a.txt");
+    mockInputBox("b.txt");
+    await execCommand("vsnetrw.duplicate");
+    assertLinesMatch(["../", "a.txt", "b.txt"]);
+    assert(await fileExists("a.txt"));
+    assert(await fileExists("b.txt"));
+  });
+
+  test("duplicate a file into a new directory", async () => {
+    await createTempWorkspace(["a.txt"]);
+    await openExplorer();
+    await moveToLine("a.txt");
+    mockInputBox("b/c.txt");
+    await execCommand("vsnetrw.duplicate");
+    assertLinesMatch(["../", "b/", "a.txt"]);
+    assert(await fileExists("a.txt"));
+    assert(await fileExists("b/c.txt"));
+  });
+
+  test("cancel duplicate a file", async () => {
+    await createTempWorkspace(["a.txt"]);
+    await openExplorer();
+    await moveToLine("a.txt");
+    mockInputBox("");
+    await execCommand("vsnetrw.duplicate");
+    assertLinesMatch(["../", "a.txt"]);
+    assert(await fileExists("a.txt"));
+  });
+
+  test("duplicate a directory", async () => {
+    await createTempWorkspace(["a/b.txt"]);
+    await openExplorer();
+    await moveToLine("a/");
+    mockInputBox("b");
+    await execCommand("vsnetrw.duplicate");
+    assertLinesMatch(["../", "a/", "b/"]);
+    assert(await fileExists("a"));
+    assert(await fileExists("b"));
+  });
+
+  test("overwriting another file", async () => {
+    await createTempWorkspace(["a.txt", "b.txt"]);
+    await openExplorer();
+    await moveToLine("a.txt");
+    mockInputBox("b.txt", "y");
+    await execCommand("vsnetrw.duplicate");
+    assertLinesMatch(["../", "a.txt", "b.txt"]);
+    let contents = await fs.readFile("b.txt");
+    assert.equal(contents, "a.txt");
+    assert(await fileExists("a.txt"));
+    assert(await fileExists("b.txt"));
+  });
+
+  test("cancelling an overwrite", async () => {
+    await createTempWorkspace(["a.txt", "b.txt"]);
+    await openExplorer();
+    await moveToLine("a.txt");
+    mockInputBox("b.txt", "n");
+    await execCommand("vsnetrw.duplicate");
+    assertLinesMatch(["../", "a.txt", "b.txt"]);
+    assert(await fileExists("a.txt"));
+    assert(await fileExists("b.txt"));
+  });
+
+  test("implicit directory duplicate", async () => {
+    await createTempWorkspace(["a.txt", "b/"]);
+    await openExplorer();
+    await moveToLine("a.txt");
+    mockInputBox("b");
+    await execCommand("vsnetrw.duplicate");
+    assertLinesMatch(["../", "b/", "a.txt"]);
+    assert(await fileExists("a.txt"));
+    assert(await fileExists("b/a.txt"));
+  });
+
+  test("implicit duplicate does not overwrite directories", async () => {
+    await createTempWorkspace(["a.txt", "b/a.txt/c.txt"]);
+    await openExplorer();
+    await moveToLine("a.txt");
+    mockInputBox("b");
+    await execCommand("vsnetrw.duplicate");
+    assertLinesMatch(["../", "b/", "a.txt"]);
+    assert(await fileExists("a.txt"));
+  });
+});
+
+
 describe("creating", () => {
   test("creating a file", async () => {
     await createTempWorkspace(["a.txt"]);
