@@ -16,8 +16,8 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v3
-      - run: yarn install --frozen-lockfile
-      - run: yarn build
+      - run: pnpm install
+      - run: pnpm build
       - uses: ncipollo/release-action@v1
         with:
           artifacts: "*.vsix"

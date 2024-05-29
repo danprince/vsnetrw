@@ -12,10 +12,10 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v3
       - name: Dependencies
-        run: yarn install --frozen-lockfile
+        run: pnpm install
       - name: Typecheck
-        run: yarn tsc
+        run: pnpm tsc
       - name: Tests
         uses: GabrielBB/xvfb-action@v1.0
         with:
-          run: yarn test
+          run: pnpm test
