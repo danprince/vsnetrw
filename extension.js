@@ -117,8 +117,8 @@ async function openExplorer(dirName) {
 
   let uri = createUri(dirName);
   let doc = await workspace.openTextDocument(uri);
-  await window.showTextDocument(doc, { preview: true });
   await languages.setTextDocumentLanguage(doc, languageId);
+  await window.showTextDocument(doc, { preview: true });
   moveCursorToPreviousFile();
 }
 
