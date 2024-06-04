@@ -250,6 +250,49 @@ async function renameFileUnderCursor() {
 }
 
 /**
+ * Prompts the user to duplicate the file that is currently under their cursor in
+ * a vsnetrw document.
+ */
+async function duplicateFileUnderCursor() {
+  let file = getLineUnderCursor();
+  let base = getCurrentDir();
+
+  let newName = await window.showInputBox({
+    title: "Duplicate",
+    value: file,
+    placeHolder: "Enter a new filename",
+  });
+
+  if (!newName) return;
+
+  let srcPath = path.join(base, file);
+  let dstPath = path.join(base, newName);
+  let dstFileType = await getFileType(dstPath);
+
+  // Treat renames like "a.txt -> ../" as "a.txt -> ../a.txt"
+  if (dstFileType === FileType.Directory) {
+    dstPath = path.join(dstPath, file);
+    dstFileType = await getFileType(dstPath);
+  }
+
+  if (dstFileType === FileType.Directory) {
+    window.showErrorMessage(`Can't duplicate to directory: ${dstPath}`);
+    return;
+  }
+
+  if (dstFileType != undefined) {
+    let ok = await confirm("Overwrite existing file?");
+    if (!ok) return;
+  }
+
+  let srcUri = Uri.file(srcPath);
+  let dstUri = Uri.file(dstPath);
+  await workspace.fs.copy(srcUri, dstUri, { overwrite: true });
+  refresh();
+}
+
+
+/**
  * Attempt to delete the file that is under the cursor in a vsnetrw document.
  */
 async function deleteFileUnderCursor() {
@@ -527,6 +570,7 @@ function activate(context) {
     commands.registerCommand("vsnetrw.openParent", openParentDirectory),
     commands.registerCommand("vsnetrw.openHome", openHomeDirectory),
     commands.registerCommand("vsnetrw.rename", renameFileUnderCursor),
+    commands.registerCommand("vsnetrw.duplicate", duplicateFileUnderCursor),
     commands.registerCommand("vsnetrw.delete", deleteFileUnderCursor),
     commands.registerCommand("vsnetrw.create", createFile),
     commands.registerCommand("vsnetrw.createDir", createDir),
